@@ -112,7 +112,7 @@ public class ChessPiece {
             if (inBounds((myPosition.getRow() + teamDirection), myPosition.getColumn())) {
                 ChessPiece frontPiece = board.getPiece(new ChessPosition(myPosition.getRow() + teamDirection , myPosition.getColumn()));
                 if (frontPiece == null) {
-                    if (myPosition.getRow() + 1 == 8) {
+                    if (myPosition.getRow() + 1 == 8 || myPosition.getRow() - 1 == 1) {
                         pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + teamDirection, myPosition.getColumn()), PieceType.QUEEN));
                         pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + teamDirection, myPosition.getColumn()), PieceType.ROOK));
                         pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + teamDirection, myPosition.getColumn()), PieceType.KNIGHT));
@@ -127,7 +127,13 @@ public class ChessPiece {
     }
 
     private boolean inBounds(int row, int column) {
-        if (row < 0)
+        if (row >= 1 && row < 9) {
+            return true;
+        }
+        if (column >= 1 && column < 9) {
+            return true;
+        }
+        return false;
     }
 
 }
