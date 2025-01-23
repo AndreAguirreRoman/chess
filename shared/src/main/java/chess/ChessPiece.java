@@ -133,20 +133,28 @@ public class ChessPiece {
             }
 
             if (current.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                ChessPiece frontDoublePieceWhite = board.getPiece(new ChessPosition(row + 1, column)); // This might be creating the issues
-                ChessPiece frontPieceWhite = board.getPiece(new ChessPosition(row + 1 , column)); // This might be creating the issues
-                if (row == 2) {
-                    if (frontPieceWhite == null && frontDoublePieceWhite == null) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + 2, column), null));
+                if (inBounds(row + 1, column)) {
+                    ChessPiece frontPieceWhite = board.getPiece(new ChessPosition(row + 1 , column)); // This might be creating the issues
+                    if (inBounds(row + 2, column)) {
+                        ChessPiece frontDoublePieceWhite = board.getPiece(new ChessPosition(row + 2, column)); // This might be creating the issues
+                        if (row == 2) {
+                            if (frontPieceWhite == null && frontDoublePieceWhite == null) {
+                                pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + 2, column), null));
+                            }
+                        }
                     }
+
                 }
             } else if (current.getTeamColor() == ChessGame.TeamColor.BLACK){
-
-                ChessPiece frontDoublePieceBlack = board.getPiece(new ChessPosition(row - 2, column)); // This might be creating the issues
-                ChessPiece frontPieceBlack = board.getPiece(new ChessPosition(row - 1 , column)); // This might be creating the issues
-                if (row == 7) {
-                    if (frontPieceBlack == null && frontDoublePieceBlack == null) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row - 2, column), null));
+                if (inBounds(row - 1, column)) {
+                    ChessPiece frontPieceBlack = board.getPiece(new ChessPosition(row - 1 , column)); // This might be creating the issues
+                    if (inBounds(row - 2, column)) {
+                        ChessPiece frontDoublePieceBlack = board.getPiece(new ChessPosition(row - 2, column)); // This might be creating the issues
+                        if (row == 7) {
+                            if (frontPieceBlack == null && frontDoublePieceBlack == null) {
+                                pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row - 2, column), null));
+                            }
+                        }
                     }
                 }
             }
