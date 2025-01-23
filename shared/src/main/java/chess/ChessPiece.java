@@ -90,27 +90,55 @@ public class ChessPiece {
                 ChessPiece rightFrontPiece = board.getPiece(new ChessPosition(row + teamDirection, rightCheck));
 
                 if (rightFrontPiece != null && rightFrontPiece.getTeamColor() != team) {
-                    if (row + 1 == 8 || row - 1 == 1) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.QUEEN));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.ROOK));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.KNIGHT));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.BISHOP));
-                    } else {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), null));
+                    if (team == ChessGame.TeamColor.WHITE) {
+
+                        if (row + 1 == 8) {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.QUEEN));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.ROOK));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.KNIGHT));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.BISHOP));
+                        } else {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), null));
+                        }
                     }
+                    if (team == ChessGame.TeamColor.BLACK) {
+
+                        if (row - 1 == 1) {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.QUEEN));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.ROOK));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.KNIGHT));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), PieceType.BISHOP));
+                        } else {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, rightCheck), null));
+                        }
+                    }
+
                 }
             }
             if (inBounds(row + teamDirection, leftCheck)) {
                 ChessPiece leftFrontPiece = board.getPiece(new ChessPosition(row + teamDirection, leftCheck ));
                 if (leftFrontPiece != null && leftFrontPiece.getTeamColor() != team) {
-                    // Need to change logic here, since it is messing up with the promotion piece for regular movements....
-                    if (row + 1 == 8 || row - 1 == 1) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.QUEEN));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.ROOK));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.KNIGHT));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.BISHOP));
-                    } else {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), null));
+                    // Need to change logic here, since it is messing up with the promotion piuece
+                    if (team == ChessGame.TeamColor.WHITE) {
+
+                        if (row + 1 == 8) {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.QUEEN));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.ROOK));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.KNIGHT));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.BISHOP));
+                        } else {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), null));
+                        }
+                    }
+                    if (team == ChessGame.TeamColor.BLACK) {
+                        if (row - 1 == 1) {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.QUEEN));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.ROOK));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.KNIGHT));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), PieceType.BISHOP));
+                        } else {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, leftCheck), null));
+                        }
                     }
                 }
             }
@@ -118,39 +146,44 @@ public class ChessPiece {
             if (inBounds((row + teamDirection), column)) {
                 ChessPiece frontPiece = board.getPiece(new ChessPosition(row + teamDirection , column));
                 if (frontPiece == null) {
-                    if (row + 1 == 8 || row - 1 == 1) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.QUEEN));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.ROOK));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.KNIGHT));
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.BISHOP));
-                    } else {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), null));
+                    if (team == ChessGame.TeamColor.WHITE) {
+                        if (row + 1 == 8) {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.QUEEN));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.ROOK));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.KNIGHT));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.BISHOP));
+                        } else {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), null));
+                        }
+                    }
+                    if (team == ChessGame.TeamColor.BLACK) {
+                        if (row - 1 == 1) {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.QUEEN));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.ROOK));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.KNIGHT));
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), PieceType.BISHOP));
+                        } else {
+                            pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + teamDirection, column), null));
+                        }
                     }
                 }
 
             }
 
-            if (team == ChessGame.TeamColor.WHITE) {
-                ChessPiece frontDoublePieceWhite = board.getPiece(new ChessPosition(row + 1, column));
-                ChessPiece frontPieceWhite = board.getPiece(new ChessPosition(row + 1 , column));
-
-
+            if (current.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                ChessPiece frontDoublePieceWhite = board.getPiece(new ChessPosition(row + 1, column)); // This might be creating the issues
+                ChessPiece frontPieceWhite = board.getPiece(new ChessPosition(row + 1 , column)); // This might be creating the issues
                 if (row == 2) {
-                    if (frontPieceWhite == null) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + 1, column), null));
-                    }
-                    if (frontDoublePieceWhite == null) {
+                    if (frontPieceWhite == null && frontDoublePieceWhite == null) {
                         pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row + 2, column), null));
                     }
                 }
-            } else {
-                ChessPiece frontDoublePieceBlack = board.getPiece(new ChessPosition(row - 1, column));
-                ChessPiece frontPieceBlack = board.getPiece(new ChessPosition(row - 1 , column));
+            } else if (current.getTeamColor() == ChessGame.TeamColor.BLACK){
+
+                ChessPiece frontDoublePieceBlack = board.getPiece(new ChessPosition(row - 2, column)); // This might be creating the issues
+                ChessPiece frontPieceBlack = board.getPiece(new ChessPosition(row - 1 , column)); // This might be creating the issues
                 if (row == 7) {
-                    if (frontPieceBlack == null) {
-                        pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row - 1, column), null));
-                    }
-                    if (frontDoublePieceBlack == null) {
+                    if (frontPieceBlack == null && frontDoublePieceBlack == null) {
                         pawnMovesList.add(new ChessMove(myPosition, new ChessPosition(row - 2, column), null));
                     }
                 }
