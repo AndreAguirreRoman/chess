@@ -69,6 +69,8 @@ public class ChessBoard {
         chessPieceSetter(squares, 7, 6, "black", "knight");
         chessPieceSetter(squares, 7, 7, "black", "rook");
 
+        //:)
+
 
     }
 

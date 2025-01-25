@@ -240,11 +240,8 @@ public class ChessPiece {
         return knightMovesList;
     }
 
-    private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
-        Collection<ChessMove> rookMoves = new ArrayList<>();
-        ChessGame.TeamColor team = current.getTeamColor();
-        int row = (myPosition.getRow());
-        int column = (myPosition.getColumn());
+
+    private void rookMovesMaker(Collection<ChessMove> rookMoves, ChessBoard board, ChessPosition myPosition, int row, int column, ChessGame.TeamColor team){
         int rowUp = row;
         int rowDown = row;
         int columnUp = column;
@@ -301,15 +298,19 @@ public class ChessPiece {
                 break;
             }
         }
+    }
+    private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
+        Collection<ChessMove> rookMoves = new ArrayList<>();
+        ChessGame.TeamColor team = current.getTeamColor();
+        int row = (myPosition.getRow());
+        int column = (myPosition.getColumn());
+
+        rookMovesMaker(rookMoves, board, myPosition, row, column, team);
 
         return rookMoves;
     }
 
-    private Collection<ChessMove> getBishopMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
-        Collection<ChessMove> bishopMoves = new ArrayList<>();
-        ChessGame.TeamColor team = current.getTeamColor();
-        int row = myPosition.getRow();
-        int column = myPosition.getColumn();
+    private void bishopMovesMaker(Collection<ChessMove> bishopMoves, ChessBoard board, ChessPosition myPosition, int row, int column, ChessGame.TeamColor team) {
 
         int rowUpRight = row;
         int columnUpRight = column;
@@ -383,18 +384,31 @@ public class ChessPiece {
             }
         }
 
+
+    }
+
+    private Collection<ChessMove> getBishopMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
+        Collection<ChessMove> bishopMoves = new ArrayList<>();
+        ChessGame.TeamColor team = current.getTeamColor();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        bishopMovesMaker(bishopMoves, board, myPosition, row, col, team);
+
         return bishopMoves;
     }
 
     private Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
         Collection<ChessMove> queenMoves = new ArrayList<>();
-        int row = myPosition.getRow();
+        ChessGame.TeamColor team = current.getTeamColor()
+;        int row = myPosition.getRow();
         int column = myPosition.getColumn();
 
-
-
+        bishopMovesMaker(queenMoves, board, myPosition, row, column, team);
+        rookMovesMaker(queenMoves, board, myPosition, row, column, team);
         return queenMoves;
     }
+
+
 
     private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition myPosition, ChessPiece current) {
         Collection<ChessMove> kingMoves = new ArrayList<>();
