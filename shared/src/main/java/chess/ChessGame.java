@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -14,7 +15,7 @@ public class ChessGame {
 
     public ChessGame() {
         this.board = new ChessBoard();
-        board.resetBoard();
+        this.board.resetBoard();
         this.teamColor = TeamColor.WHITE;
 
     }
@@ -23,7 +24,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return this.teamColor;
+        return teamColor;
     }
 
     /**
@@ -32,7 +33,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.teamColor = team;
+        teamColor = team;
     }
 
     /**
@@ -51,7 +52,27 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+
+        ChessPiece currentPiece = board.getPiece(startPosition);
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        TeamColor teamColor = currentPiece.getTeamColor();
+
+
+        if (currentPiece != null){
+            Collection<ChessMove> pieceMove = currentPiece.pieceMoves(board, startPosition);
+            for (ChessMove move : pieceMove){
+
+                ChessPiece destination = board.getPiece(move.getEndPosition());
+                if (destination == null || board.getPiece(move.getEndPosition()).getTeamColor() != teamColor){
+                    validMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece()));
+                }
+            }
+            //filter the ones that
+        } else {
+            return validMoves;
+        }
+
+        return validMoves;
     }
 
     /**
