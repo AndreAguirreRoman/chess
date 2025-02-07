@@ -88,7 +88,45 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece movePiece = this.board.getPiece(move.getStartPosition());
+        Collection<ChessMove> possibleMoves = validMoves(move.getStartPosition());
+        TeamColor team = getTeamTurn();
+
+
+        if (movePiece == null || team != movePiece.getTeamColor() || !possibleMoves.contains(move) ){
+            throw new InvalidMoveException("Not valid move");
+        }
+
+        if (movePiece.getPieceType() == ChessPiece.PieceType.KING){
+            if (movePiece.getTeamColor() == TeamColor.WHITE){
+                whiteKing = move.getEndPosition();
+            } else {
+                blackKing = move.getEndPosition();
+            }
+        }
+        if (this.isInCheck(team)){
+            throw new InvalidMoveException("Not the best move");
+        }
+
+
+        ChessPiece checkPiece = this.board.getPiece(move.getEndPosition());
+        if (checkPiece != null && checkPiece.getTeamColor() != team){
+            this.board.addPiece(move.getEndPosition(), movePiece);
+            this.board.addPiece(move.getStartPosition(),null);
+        }
+        if (checkPiece == null){
+            this.board.addPiece(move.getEndPosition(), movePiece);
+            this.board.addPiece(move.getStartPosition(),null);
+        }
+        if (movePiece.getPieceType() == ChessPiece.PieceType.PAWN){
+            TeamColor pawnColor = (movePiece.getTeamColor() == TeamColor.WHITE) ? TeamColor.WHITE : TeamColor.BLACK;
+                if (move.getEndPosition().getRow() == 8){
+                    this.board.addPiece(move.getEndPosition(), new ChessPiece(pawnColor, move.getPromotionPiece()));
+                }
+
+        }
+        teamColor = (team == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+
     }
 
     /**
@@ -205,5 +243,15 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(teamColor, board, whiteKing, blackKing);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "teamColor=" + teamColor +
+                ", board=" + board +
+                ", whiteKing=" + whiteKing +
+                ", blackKing=" + blackKing +
+                '}';
     }
 }
