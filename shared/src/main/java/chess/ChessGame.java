@@ -176,7 +176,6 @@ public class ChessGame {
                     if (this.validMoves(currentPosition).isEmpty() == false){
                         return false;
                     }
-
                 }
             }
         }
