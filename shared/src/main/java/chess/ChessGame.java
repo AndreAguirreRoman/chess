@@ -151,26 +151,38 @@ public class ChessGame {
      */
 
 
-
-
    public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingColor = (teamColor == TeamColor.WHITE) ? whiteKing : blackKing;
+        ChessPosition updatedKingPosition = null;
         ChessPiece currentPiece;
         ChessPosition currentPosition;
+
+       for (int x = 1; x < 9; x++) {
+           for (int y = 1; y < 9; y++) {
+               ChessPiece updatedKing = board.getPiece(new ChessPosition(x, y));
+               if (updatedKing != null && updatedKing.getTeamColor() == teamColor && updatedKing.getPieceType() == ChessPiece.PieceType.KING) {
+                   updatedKingPosition = new ChessPosition(x, y);
+                   break;
+               }
+           }
+       }
         for (int x = 1; x < 9; x++){
             for (int y = 1; y < 9; y++){
                 currentPosition = new ChessPosition(x,y);
                 currentPiece = board.getPiece(new ChessPosition(x,y));
-                    if (currentPiece != null && teamColor != currentPiece.getTeamColor()){
+                if (currentPiece != null && teamColor != currentPiece.getTeamColor()){
                     if (currentPiece.getPieceType() == ChessPiece.PieceType.PAWN){
                         ArrayList<String> pawnTypes = new ArrayList<>(Arrays.asList("QUEEN","ROOK", "BISHOP", "KNIGHT"));
                         for (String pawn : pawnTypes) {
-                            if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, kingColor, ChessPiece.PieceType.valueOf(pawn)))){
+                            if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, updatedKingPosition, ChessPiece.PieceType.valueOf(pawn)))){
                                 return true;
                             }
                         }
+                        if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, updatedKingPosition, null))){
+                            return true;
+                        }
                     }
-                    if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, kingColor, null))){
+                    if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, updatedKingPosition, null))){
                         return true;
                     }
                 }
@@ -203,7 +215,7 @@ public class ChessGame {
                     if (!this.validMoves(currentPosition).isEmpty()){
                         System.out.println("Move for: " + currentPosition);
                         return false;
-                    } else return true;
+                    }
                 }
             }
         }
