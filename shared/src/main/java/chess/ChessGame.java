@@ -68,6 +68,7 @@ public class ChessGame {
             Collection<ChessMove> pieceMove = currentPiece.pieceMoves(board, startPosition);
             for (ChessMove move : pieceMove){
                 ChessPiece destination = board.getPiece(move.getEndPosition());
+
                 if (destination == null || board.getPiece(move.getEndPosition()).getTeamColor() != teamColor){
                     validMoves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), move.getPromotionPiece()));
                 } else if (destination.getTeamColor() == teamColor) {
@@ -104,9 +105,7 @@ public class ChessGame {
                 blackKing = move.getEndPosition();
             }
         }
-        if (this.isInCheck(team)){
-            throw new InvalidMoveException("Not the best move");
-        }
+
 
 
         ChessPiece checkPiece = this.board.getPiece(move.getEndPosition());
@@ -118,16 +117,32 @@ public class ChessGame {
             this.board.addPiece(move.getEndPosition(), movePiece);
             this.board.addPiece(move.getStartPosition(),null);
         }
-        if (movePiece.getPieceType() == ChessPiece.PieceType.PAWN){
-            TeamColor pawnColor = (movePiece.getTeamColor() == TeamColor.WHITE) ? TeamColor.WHITE : TeamColor.BLACK;
-                if (move.getEndPosition().getRow() == 8){
-                    this.board.addPiece(move.getEndPosition(), new ChessPiece(pawnColor, move.getPromotionPiece()));
-                }
+        if (movePiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int promotionRow = (movePiece.getTeamColor() == TeamColor.WHITE) ? 8 : 1;
+
+            if (move.getEndPosition().getRow() == promotionRow) {
+                this.board.addPiece(move.getEndPosition(), new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece()));
+                this.board.addPiece(move.getStartPosition(), null);
+                return;
+            }
+        }
+
+        if (this.isInCheck(team)){
+            throw new InvalidMoveException("Not the best move");
+        }
+        if (this.isInCheckmate(team)){
+            throw new InvalidMoveException("Game over");
+        }
+        if (this.isInStalemate(team)){
+            throw new InvalidMoveException("Stalemate bud");
 
         }
         teamColor = (team == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
 
     }
+
+
+    //asdasdasddas
 
     /**
      * Determines if the given team is in check
@@ -143,6 +158,8 @@ public class ChessGame {
             for (int y = 1; y < 9; y++){
                 currentPosition = new ChessPosition(x,y);
                 currentPiece = board.getPiece(new ChessPosition(x,y));
+
+
                 if (currentPiece != null && teamColor != currentPiece.getTeamColor()){
                     if (currentPiece.pieceMoves(board, currentPosition).contains(new ChessMove(currentPosition, kingColor, null))){
                         return true;
@@ -162,6 +179,7 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPiece currentPiece;
         ChessPosition currentPosition;
+        ChessPosition kingColor = (teamColor == TeamColor.WHITE) ? whiteKing : blackKing;
 
         if(!isInCheck(teamColor)){
             return false;
@@ -172,8 +190,8 @@ public class ChessGame {
                 currentPiece = board.getPiece(new ChessPosition(x,y));
 
                 if (currentPiece != null && teamColor == currentPiece.getTeamColor()){
-
-                    if (this.validMoves(currentPosition).isEmpty() == false){
+                    if (!this.validMoves(currentPosition).isEmpty()){
+                        System.out.println("Move available for: " + currentPosition);
                         return false;
                     }
                 }
@@ -199,7 +217,9 @@ public class ChessGame {
                     currentPosition = new ChessPosition(x, y);
                     currentPiece = board.getPiece(new ChessPosition(x, y));
                     if (currentPiece != null && teamColor == currentPiece.getTeamColor()) {
-                        if (this.validMoves(currentPosition).isEmpty() == false) {
+
+
+                        if (!this.validMoves(currentPosition).isEmpty()) {
                             return false;
                         }
                     }
