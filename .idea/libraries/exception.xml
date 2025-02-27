@@ -1,5 +1,5 @@
 <component name="libraryTable">
-  <library name="sparkjava.spark.core" type="repository">
+  <library name="exception" type="repository">
     <properties maven-id="com.sparkjava:spark-core:2.9.3" />
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/com/sparkjava/spark-core/2.9.3/spark-core-2.9.3.jar!/" />
