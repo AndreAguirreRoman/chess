@@ -3,7 +3,7 @@ package server;
 import spark.*;
 import spark.Response;
 import spark.Request;
-
+import com.google.gson.Gson;
 import java.util.UUID;
 
 public class Server {
@@ -25,14 +25,10 @@ public class Server {
     }
 
     private Object createUser(Request req, Response res){
-
         return res;
     }
 
-    private String createAuthToken(){
-        String authToken = UUID.randomUUID().toString();
-        return authToken;
-    }
+
 
     /*private Object getGames(Request req, Response res) {
 
