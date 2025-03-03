@@ -1,4 +1,3 @@
 package results;
 
-public record LoginRequest() {
-}
+public record LoginRequest(String userName, String password) {}

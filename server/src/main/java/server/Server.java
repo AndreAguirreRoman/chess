@@ -1,5 +1,9 @@
 package server;
 
+import dataaccess.DataAccess;
+import service.ClearService;
+import service.GameService;
+import service.UserService;
 import spark.*;
 import spark.Response;
 import spark.Request;
@@ -7,6 +11,16 @@ import com.google.gson.Gson;
 import java.util.UUID;
 
 public class Server {
+
+    private final ClearService clearService;
+    private final GameService gameService;
+    private final UserService userService;
+
+    public Server(DataAccess dataAccess){
+        this.clearService = new ClearService(dataAccess);
+        this.gameService = new GameService(dataAccess);
+        this.clearService = new ClearService(dataAccess);
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

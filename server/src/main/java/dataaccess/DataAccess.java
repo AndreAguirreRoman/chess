@@ -13,11 +13,10 @@ public interface DataAccess {
     GameData createGame(GameData gameData) throws DataAccessException;
     GameData getGame(int gameId) throws DataAccessException;
     Collection<GameData> listGames();
-    void updateGameName(int gameId, String gameName) throws DataAccessException;
-    void updateGame(int gameId, GameData gameData);
+    void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException;
     UserData createUser(UserData user) throws DataAccessException;
     UserData getUser(String username);
-    public AuthData findAuthWithUser(String username);
+    AuthData findAuthWithUser(String username);
     void deleteUser(String username) throws DataAccessException;
     void clearUserList();
     void clear();

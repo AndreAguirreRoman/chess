@@ -73,9 +73,31 @@ public class MemoryDataAccess implements DataAccess{
         }
     }
 
-    public void updateGame(int gameId, GameData newGameData){
-        gamesList.put(gameId, newGameData);
+    public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException{
+        if (authTokens.containsKey(authToken)){
+            GameData game = getGame(gameId);
+            if (game == null){
+                throw new DataAccessException(404, "Game not found");
+            }
+            String userName = authTokens.get(authToken).userName();
+            GameData newGameData = null;
+            if (playerColor.equalsIgnoreCase("WHITE")){
+                if (game.whiteUsername() != null) {
+                    throw new DataAccessException(403, "White slot taken");
+                }
+                newGameData = new GameData(game.id(), userName,
+                        game.blackUsername(),game.gameName(), game.game());
+            } else if (playerColor.equalsIgnoreCase("BLACK")){
+                if (game.blackUsername() != null) {
+                    throw new DataAccessException(403, "Black slot taken");
+                }
+                 newGameData = new GameData(game.id(), game.whiteUsername(),
+                        userName,game.gameName(), game.game());
+            }
+            gamesList.put(gameId, newGameData);
+        }
     }
+
 
 
     public AuthData createAuth(UserData userData, String authToken) throws DataAccessException{
@@ -103,6 +125,7 @@ public class MemoryDataAccess implements DataAccess{
         }
         return authTokens.get(authToken);
     }
+
     public void deleteAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
             throw new DataAccessException(404, "No auth found!");

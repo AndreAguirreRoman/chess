@@ -1,4 +1,4 @@
 package results;
 
-public record LogoutResponse() {
+public record LogoutResponse(int code) {
 }

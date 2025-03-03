@@ -3,6 +3,7 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
+import results.*;
 
 import java.util.UUID;
 
@@ -13,32 +14,35 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData register(UserData user) throws DataAccessException {
-        if (dataAccess.getUser(user.username()) != null){
+    public RegisterResult register(RegisterRequest request) throws DataAccessException {
+        if (dataAccess.getUser(request.userName()) != null){
             throw new DataAccessException(404, "Choose another username");
         }
+        UserData user = new UserData(0, request.userName(), request.email(), request.password());
+
         dataAccess.createUser(user);
         String authToken = generateToken();
-
-        return dataAccess.createAuth(user, authToken);
+        AuthData authData = dataAccess.createAuth(user, authToken);
+        return new RegisterResult(authData.userName(), authData.authToken(), 200);
     }
 
-    public AuthData login(UserData userData) throws DataAccessException {
-        UserData user = dataAccess.getUser(userData.username());
-        if (user == null || !user.email().equals(userData.email()) ||
-                !user.password().equals(userData.password())){
+    public LoginResult login(LoginRequest request) throws DataAccessException {
+        UserData user = dataAccess.getUser(request.userName());
+        if (user == null || !user.password().equals(request.password())){
             throw new DataAccessException(404, "Invalid credentials");
         }
         AuthData userAuth = dataAccess.findAuthWithUser(user.username());
         if (userAuth != null){
-            return userAuth;
+            return new LoginResult(userAuth.userName(), userAuth.authToken(), 200);
         }
         String authToken = generateToken();
-        return dataAccess.createAuth(user, authToken);
+        AuthData newUserAuth = dataAccess.createAuth(user, authToken);
+        return new LoginResult(newUserAuth.userName(), newUserAuth.authToken(), 200);
     }
 
-    public void logout(String authToken) throws DataAccessException{
-        dataAccess.deleteAuth(authToken);
+    public LogoutResponse logout(LogoutRequest request) throws DataAccessException{
+        dataAccess.deleteAuth(request.authToken());
+        return new LogoutResponse(200);
     }
 
 
