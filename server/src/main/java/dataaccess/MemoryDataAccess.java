@@ -6,7 +6,6 @@ import model.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class MemoryDataAccess implements DataAccess{
 
@@ -19,7 +18,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public UserData createUser(UserData user) throws DataAccessException {
         if (usersList.containsKey(user.username())) {
-            throw new DataAccessException("User Already Exists!");
+            throw new DataAccessException(404, "User Already Exists!");
         }
         user = new UserData(nextUserId++, user.username(), user.email(), user.password());
         usersList.put(user.username(), user);
@@ -32,7 +31,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public void deleteUser(String username) throws DataAccessException{
         if (!usersList.containsKey(username)){
-            throw new DataAccessException("User not found!");
+            throw new DataAccessException(404, "User not found!");
         }
         usersList.remove(username);
     }
@@ -44,7 +43,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public GameData createGame(GameData gameData) throws DataAccessException {
         if (gamesList.containsKey(gameData.id())) {
-            throw new DataAccessException("Game already exists");
+            throw new DataAccessException(409, "Game already exists");
         }
         gameData = new GameData(nextGameId++, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
@@ -54,7 +53,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public GameData getGame(int gameId) throws DataAccessException{
         if (!gamesList.containsKey(gameId)){
-            throw new DataAccessException("Not such game");
+            throw new DataAccessException(404, "Not such game");
         }
         return gamesList.get(gameId);
     }
@@ -65,7 +64,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public void updateGameName(int gameId, String gameName) throws DataAccessException{
         if (!gamesList.containsKey(gameId)){
-            throw new DataAccessException("no game to udpate:(");
+            throw new DataAccessException(404, "no game to udpate:(");
         } else {
             GameData oldGame = gamesList.get(gameId);
             GameData updatedGame = new GameData(gameId, oldGame.whiteUsername(),
@@ -91,13 +90,13 @@ public class MemoryDataAccess implements DataAccess{
     }
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
-            throw new DataAccessException("No authorization!");
+            throw new DataAccessException(401, "No authorization!");
         }
         return authTokens.get(authToken);
     }
     public void deleteAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
-            throw new DataAccessException("No auth found!");
+            throw new DataAccessException(404, "No auth found!");
         }
         authTokens.remove(authToken);
     }

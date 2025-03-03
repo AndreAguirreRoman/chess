@@ -1,6 +1,6 @@
 package service;
 import dataaccess.DataAccess;
-import exception.ResponseException;
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 
@@ -13,9 +13,9 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData createUser(UserData user) throws ResponseException {
+    public AuthData createUser(UserData user) throws DataAccessException {
         if (dataAccess.getUser(user.username()) != null){
-            throw new ResponseException("Choose another username");
+            throw new DataAccessException(404, "Choose another username");
         }
         dataAccess.createUser(user);
         String authToken = generateToken();
