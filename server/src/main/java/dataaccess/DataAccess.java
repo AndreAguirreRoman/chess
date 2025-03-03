@@ -17,6 +17,7 @@ public interface DataAccess {
     void updateGame(int gameId, GameData gameData);
     UserData createUser(UserData user) throws DataAccessException;
     UserData getUser(String username);
+    public AuthData findAuthWithUser(String username);
     void deleteUser(String username) throws DataAccessException;
     void clearUserList();
     void clear();

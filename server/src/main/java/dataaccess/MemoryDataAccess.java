@@ -88,6 +88,15 @@ public class MemoryDataAccess implements DataAccess{
         authTokens.put(authData.authToken(), authData);
         return authData;
     }
+
+    public AuthData findAuthWithUser(String username){
+        for (AuthData existingToken : authTokens.values()){
+            if (existingToken.userName().equals(username)) {
+                return existingToken;
+            }
+        }
+        return null;
+    }
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
             throw new DataAccessException(401, "No authorization!");
