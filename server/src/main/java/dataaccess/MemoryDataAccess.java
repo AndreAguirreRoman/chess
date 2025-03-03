@@ -14,13 +14,14 @@ public class MemoryDataAccess implements DataAccess{
     private final HashMap<String, UserData> usersList = new HashMap<>();
     private final HashMap<String, AuthData> authTokens = new HashMap<>();
 
-    private int nextId = 1;
+    private int nextUserId = 1;
+    private int nextGameId = 1;
 
     public UserData createUser(UserData user) throws DataAccessException {
         if (usersList.containsKey(user.username())) {
             throw new DataAccessException("User Already Exists!");
         }
-        user = new UserData(nextId++, user.username(), user.email(), user.password());
+        user = new UserData(nextUserId++, user.username(), user.email(), user.password());
         usersList.put(user.username(), user);
         return user;
     }
@@ -45,7 +46,7 @@ public class MemoryDataAccess implements DataAccess{
         if (gamesList.containsKey(gameData.id())) {
             throw new DataAccessException("Game already exists");
         }
-        gameData = new GameData(nextId++, gameData.whiteUsername(),
+        gameData = new GameData(nextGameId++, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
         gamesList.put(gameData.id(), gameData);
         return gameData;
@@ -84,7 +85,7 @@ public class MemoryDataAccess implements DataAccess{
                 return existingToken;
             }
         }
-        AuthData authData = new AuthData(generateToken(), userData.username());
+        AuthData authData = new AuthData(authToken, userData.username());
         authTokens.put(authData.authToken(), authData);
         return authData;
     }
@@ -101,9 +102,6 @@ public class MemoryDataAccess implements DataAccess{
         authTokens.remove(authToken);
     }
 
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 
     public void clear(){
         gamesList.clear();
