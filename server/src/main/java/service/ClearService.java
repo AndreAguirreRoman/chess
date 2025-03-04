@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import exception.ResponseException;
 import model.AuthData;
 
 public class ClearService {
@@ -24,7 +25,7 @@ public class ClearService {
         dataAccess.clearUserList();;
     }
 
-    public void deleteEverything() {
+    public void deleteEverything() throws DataAccessException {
         dataAccess.clear();
     }
 }

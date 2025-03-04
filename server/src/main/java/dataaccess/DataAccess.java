@@ -19,5 +19,5 @@ public interface DataAccess {
     AuthData findAuthWithUser(String username);
     void deleteUser(String username) throws DataAccessException;
     void clearUserList();
-    void clear();
+    void clear() throws  DataAccessException;
 }

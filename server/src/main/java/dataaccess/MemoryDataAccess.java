@@ -3,7 +3,6 @@ package dataaccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-
 import java.util.Collection;
 import java.util.HashMap;
 

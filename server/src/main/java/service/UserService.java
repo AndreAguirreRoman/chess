@@ -1,6 +1,7 @@
 package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 import results.*;
@@ -14,16 +15,15 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
-    public RegisterResult register(RegisterRequest request) throws DataAccessException {
-        if (dataAccess.getUser(request.userName()) != null){
+    public AuthData register(UserData user) throws DataAccessException {
+        if (dataAccess.getUser(user.username()) != null){
             throw new DataAccessException(404, "Choose another username");
         }
-        UserData user = new UserData(0, request.userName(), request.email(), request.password());
+        UserData newUser = new UserData(0, user.username(), user.email(), user.password());
 
         dataAccess.createUser(user);
         String authToken = generateToken();
-        AuthData authData = dataAccess.createAuth(user, authToken);
-        return new RegisterResult(authData.userName(), authData.authToken(), 200);
+        return dataAccess.createAuth(user, authToken);
     }
 
     public LoginResult login(LoginRequest request) throws DataAccessException {
