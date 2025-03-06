@@ -16,16 +16,18 @@ public class UserService {
 
     public AuthData register(UserData user) throws DataAccessException{
         if (user.username() == null || user.password() == null || user.email() == null) {
-            throw new DataAccessException(400, "bad request");
+            throw new DataAccessException(400, "Error bad request");
         }
         if (dataAccess.getUser(user.username()) != null){
-            throw new DataAccessException(403, "already taken");
+            throw new DataAccessException(403, "Error already taken");
         }
 
         UserData newUser = new UserData(0, user.username(), user.email(), user.password());
+
         dataAccess.createUser(newUser);
         String authToken = generateToken();
         AuthData newAuth = dataAccess.createAuth(user, authToken);
+        System.out.println("Registering user: " + newAuth.userName() + " with token: " + newAuth.authToken());
         return newAuth;
     }
 
@@ -37,10 +39,9 @@ public class UserService {
 
 
     public LoginResult login(UserData request) throws DataAccessException {
-        System.out.println("Login attempt for user: " + request.username());
         UserData user = dataAccess.getUser(request.username());
         if (user == null || !user.password().equals(request.password())){
-            throw new DataAccessException(401, "unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         AuthData userAuth = dataAccess.findAuthWithUser(user.username());
         if (userAuth != null){
@@ -49,7 +50,6 @@ public class UserService {
         String authToken = generateToken();
         AuthData newUserAuth = dataAccess.createAuth(user, authToken);
         LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken());
-        System.out.println("Returning LoginResult: " + result);
         return result;
     }
 

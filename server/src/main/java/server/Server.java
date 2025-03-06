@@ -60,7 +60,10 @@ public class Server {
             var user = new Gson().fromJson(req.body(), UserData.class);
             AuthData authData = userService.register(user);
             res.status(200);
-            return new Gson().toJson(authData);
+            return new Gson().toJson(Map.of(
+                    "username", authData.userName(),
+                    "authToken", authData.authToken()
+            ));
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
             return e.toJson();
