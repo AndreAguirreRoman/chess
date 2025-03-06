@@ -2,8 +2,12 @@ package server;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.UserData;
+import results.LoginResult;
+import results.LogoutRequest;
+import results.LogoutResponse;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -11,7 +15,9 @@ import spark.*;
 import spark.Response;
 import spark.Request;
 import com.google.gson.Gson;
-import exception.ResponseException;
+
+import java.util.Map;
+
 public class Server {
 
     private final ClearService clearService;
@@ -19,7 +25,8 @@ public class Server {
     private final UserService userService;
 
 
-    public Server(DataAccess dataAccess){
+    public Server(){
+        DataAccess dataAccess = new MemoryDataAccess();
         this.clearService = new ClearService(dataAccess);
         this.gameService = new GameService(dataAccess);
         this.userService = new UserService(dataAccess);
@@ -32,8 +39,10 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         // Spark.get("/game", this::getGames);
         Spark.post("/user/register", this::createUser);
-        Spark.delete("/db", this::clear);
-        Spark.exception(ResponseException.class, this::exceptionHandler);
+        Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
+
+        // Spark.delete("/db", this::clear);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.awaitInitialization();
@@ -52,31 +61,63 @@ public class Server {
             res.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
-            res.status(e.StatusCode());
+            res.status(e.getStatusCode());
             return e.toJson();
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(Map.of("message:", e.getMessage()));
         }
     }
 
+    private Object login(Request req, Response res){
+        try {
+            var login = new Gson().fromJson(req.body(), UserData.class);
+            LoginResult userLogin = userService.login(login);
+            res.status(200);
+            return new Gson().toJson(userLogin);
+        } catch (DataAccessException e) {
+            res.status(e.getStatusCode());
+            return e.toJson();
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(Map.of("message:", e.getMessage()));
+        }
+    }
+
+    private Object logout(Request req, Response res){
+        try {
+            var logout = new Gson().fromJson(req.headers("authorization"), LogoutRequest.class);
+            LogoutResponse result = userService.logout(logout);
+            res.status(200);
+            return new Gson().toJson(result);
+        } catch (DataAccessException e) {
+            res.status(e.getStatusCode());
+            return e.toJson();
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(Map.of("message:", e.getMessage()));
+        }
+    }
+
+/*
     private Object clear(Request req, Response res) {
         try {
             clearService.deleteEverything();
             res.status(200);
             return new Gson().toJson("Deleted!");
         } catch (DataAccessException e) {
-            res.status(e.StatusCode());
-            return e.toJson();
+            ResponseException ex = ResponseException.error(e.getMessage());
+            exceptionHandler(ex, req, res);
+            return res.body();
         }
     }
 
-    private void exceptionHandler(ResponseException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
-        res.body(ex.toJson());
-    }
+    */
+
 
 
     /*private Object getGames(Request req, Response res) {
 
     }*/
-
 
 }

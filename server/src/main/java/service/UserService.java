@@ -1,7 +1,6 @@
 package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 import results.*;
@@ -15,21 +14,34 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData register(UserData user) throws DataAccessException {
-        if (dataAccess.getUser(user.username()) != null){
-            throw new DataAccessException(404, "Choose another username");
+    public AuthData register(UserData user) throws DataAccessException{
+        if (user.username() == null || user.password() == null || user.email() == null) {
+            throw new DataAccessException(400, "bad request");
         }
-        UserData newUser = new UserData(0, user.username(), user.email(), user.password());
+        if (dataAccess.getUser(user.username()) != null){
+            throw new DataAccessException(403, "already taken");
+        }
 
-        dataAccess.createUser(user);
+        UserData newUser = new UserData(0, user.username(), user.email(), user.password());
+        dataAccess.createUser(newUser);
         String authToken = generateToken();
-        return dataAccess.createAuth(user, authToken);
+        AuthData newAuth = dataAccess.createAuth(user, authToken);
+        return newAuth;
     }
 
-    public LoginResult login(LoginRequest request) throws DataAccessException {
-        UserData user = dataAccess.getUser(request.userName());
+    /*
+    public UserData getUser(AuthData userAuth) throws DataAccessException{
+        if (dataAccess.getUser(userAuth.userName()) != null){
+            throw new DataAccessException(500, "Something went wrong!");
+        }
+        return dataAccess.getUser(userAuth.userName());
+    }
+    */
+
+    public LoginResult login(UserData request) throws DataAccessException {
+        UserData user = dataAccess.getUser(request.username());
         if (user == null || !user.password().equals(request.password())){
-            throw new DataAccessException(404, "Invalid credentials");
+            throw new DataAccessException(401, "unauthorized");
         }
         AuthData userAuth = dataAccess.findAuthWithUser(user.username());
         if (userAuth != null){
@@ -37,10 +49,15 @@ public class UserService {
         }
         String authToken = generateToken();
         AuthData newUserAuth = dataAccess.createAuth(user, authToken);
-        return new LoginResult(newUserAuth.userName(), newUserAuth.authToken(), 200);
+        LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken(), 200);
+        return result;
     }
 
     public LogoutResponse logout(LogoutRequest request) throws DataAccessException{
+        AuthData userAuth = dataAccess.getAuth(request.authToken());
+        if (userAuth == null) {
+            throw new DataAccessException(401, "unauthorized");
+        }
         dataAccess.deleteAuth(request.authToken());
         return new LogoutResponse(200);
     }

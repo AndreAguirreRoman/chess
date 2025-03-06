@@ -15,18 +15,11 @@ public class DataAccessException extends Exception {
         this.statusCode = statusCode;
     }
 
-    public String toJson() {
-        return new Gson().toJson(Map.of("message", getMessage(), "status", statusCode));
-    }
-
-    public static DataAccessException fromJson(InputStream stream) {
-        var map = new Gson().fromJson(new InputStreamReader(stream), HashMap.class);
-        var status = ((Double)map.get("status")).intValue();
-        String message = map.get("message").toString();
-        return new DataAccessException(status, message);
-    }
-
-    public int StatusCode() {
+    public int getStatusCode(){
         return statusCode;
+    }
+
+    public String toJson() {
+        return new Gson().toJson(Map.of("message", getMessage()));
     }
 }
