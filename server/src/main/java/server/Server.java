@@ -38,13 +38,14 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         // Register your endpoints and handle exceptions here.
+        Spark.put("/game", this::updateGame);
+
         Spark.delete("/db", this::clear);
         Spark.get("/game", this::listGames);
         Spark.post("/user", this::createUser);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::createGame);
-        Spark.put("/game", this::updateGame);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.awaitInitialization();
@@ -165,29 +166,6 @@ public class Server {
             return new Gson().toJson(Map.of("Error", e.getMessage()));
         }
     }
-
-    /*private Object updateGame(Request req, Response res) {
-        try {
-            String authToken = req.headers("authorization");
-
-            UpdateGameRequest gameInfo = new Gson().fromJson(req.body(), UpdateGameRequest.class);
-            if (gameInfo == null || gameInfo.gameId() <= 0 || gameInfo.playerColor() == null) {
-                throw new DataAccessException(400, "Bad request - Missing required fields");
-            }
-
-            UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfo);
-            res.status(200);
-            return new Gson().toJson(updateGameResponse);
-        } catch (DataAccessException e) {
-            res.status(e.getStatusCode());
-            return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
-        } catch (Exception e) {
-            res.status(500);
-            return new Gson().toJson(Map.of("message", e.getMessage()));
-        }
-    }
-
-     */
 
 
 

@@ -18,7 +18,7 @@ public class GameService {
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
         getAuthorization(request.authToken());
         GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), null));
-        System.out.println("✅ Game created with IDDDD: " + newGame.gameId());
+        System.out.println(" Game created with IDDDD: " + newGame.gameId());
 
         return new CreateGameResponse(newGame.gameId());
     }

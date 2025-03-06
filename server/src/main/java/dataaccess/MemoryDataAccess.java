@@ -48,7 +48,7 @@ public class MemoryDataAccess implements DataAccess{
         gameData = new GameData(newGameId, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
         gamesList.put(gameData.gameId(), gameData);
-        System.out.println("✅ Storedddddd game in database: " + gameData);
+        System.out.println("Storedddddd game in database: " + gameData);
         return gameData;
     }
 
