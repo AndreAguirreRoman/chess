@@ -18,8 +18,11 @@ public class GameService {
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
         getAuthorization(request.authToken());
         GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), null));
-        return new CreateGameResponse(newGame.id(), newGame.gameName(), 200);
+        System.out.println("✅ Game created with IDDDD: " + newGame.gameId());
+
+        return new CreateGameResponse(newGame.gameId());
     }
+
 
     public GetGameResponse getGames(String authToken) throws DataAccessException{
         getAuthorization(authToken);
@@ -30,12 +33,14 @@ public class GameService {
 
     public UpdateGameResponse updateGame(UpdateGameRequest request) throws DataAccessException{
         getAuthorization(request.authToken());
-        AuthData user = dataAccess.getAuth(request.authToken());
-        GameData game = dataAccess.getGame(request.gameId());
-        if (game == null){
-            throw new DataAccessException(400, "bad request");
-        }
+        System.out.println("REQUESTTTT " + request);
         String teamColor = request.playerColor();
+
+        GameData game = dataAccess.getGame(request.gameId());
+        System.out.println("GAMEEEE" + game);
+        if (!teamColor.equalsIgnoreCase("WHITE") && !teamColor.equalsIgnoreCase("BLACK")) {
+            throw new DataAccessException(400, "Error no team selected");
+        }
         if (teamColor.equalsIgnoreCase("WHITE")){
             if (game.whiteUsername() != null){
                 throw new DataAccessException(403, "already taken");
@@ -51,6 +56,7 @@ public class GameService {
 
     public void getAuthorization(String authToken) throws DataAccessException{
         if (dataAccess.getAuth(authToken) == null){
+            System.out.println("Error in authToken");
             throw new DataAccessException(401, "unauthorized");
         }
     }

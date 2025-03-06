@@ -44,6 +44,7 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::createGame);
+        Spark.put("/game", this::updateGame);
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.awaitInitialization();
@@ -96,8 +97,9 @@ public class Server {
             res.status(200);
             return new Gson().toJson(result);
         } catch (DataAccessException e) {
+            System.out.println("Logout error: " + e.getMessage());
             res.status(e.getStatusCode());
-            return e.toJson();
+            return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (Exception e) {
             res.status(500);
             return new Gson().toJson(Map.of("message:", e.getMessage()));
@@ -122,38 +124,71 @@ public class Server {
     private Object createGame(Request req, Response res){
         try {
             String authToken = req.headers("authorization");
-            if (authToken == null) {
-                throw new DataAccessException(401, "unauthorized");
-            }
+            AuthData authData = userService.getUserAuth(authToken);
+
             CreateGameRequest gameName = new Gson().fromJson(req.body(), CreateGameRequest.class);
-            if (gameName == null){
-                throw new DataAccessException(400, "bad request");
-            }
-            CreateGameResponse game = gameService.createGame(gameName);
+            CreateGameRequest gameData = new CreateGameRequest(gameName.gameName(), authToken);
+
+            CreateGameResponse game = gameService.createGame(gameData);
+
             res.status(200);
-            return new Gson().toJson(game.gameId());
-        } catch (Exception e) {
-            res.status(500);
-            return new Gson().toJson(Map.of("message:", e.getMessage()));
+            System.out.println(res.status());
+            System.out.println("Created game with ID: " + game.gameId());
+
+            return new Gson().toJson(Map.of("gameID:", game.gameId()));
+
+        } catch (DataAccessException e) {
+            res.status(e.getStatusCode());
+            return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
     private Object updateGame(Request req, Response res){
         try {
             String authData = req.headers("authorization");
+            System.out.println(authData);
             UpdateGameRequest gameInfo = new Gson().fromJson(req.body(), UpdateGameRequest.class);
-            UpdateGameRequest updateGame = new UpdateGameRequest(gameInfo.gameId(), authData, gameInfo.playerColor());
-            UpdateGameResponse updateGameResponse = gameService.updateGame(updateGame);
+            System.out.println("Game info" + gameInfo);
+            UpdateGameRequest gameInfoAuthToken = new UpdateGameRequest(gameInfo.gameId(),authData, gameInfo.playerColor());
+            System.out.println(gameInfoAuthToken);
+
+
+            UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoAuthToken);
+            System.out.println(updateGameResponse);
             res.status(200);
-            return new Gson().toJson(updateGameResponse.code());
+            return new Gson().toJson(updateGameResponse);
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
             return e.toJson();
         } catch (Exception e) {
             res.status(500);
-            return new Gson().toJson(Map.of("message:", e.getMessage()));
+            return new Gson().toJson(Map.of("Error", e.getMessage()));
         }
     }
+
+    /*private Object updateGame(Request req, Response res) {
+        try {
+            String authToken = req.headers("authorization");
+
+            UpdateGameRequest gameInfo = new Gson().fromJson(req.body(), UpdateGameRequest.class);
+            if (gameInfo == null || gameInfo.gameId() <= 0 || gameInfo.playerColor() == null) {
+                throw new DataAccessException(400, "Bad request - Missing required fields");
+            }
+
+            UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfo);
+            res.status(200);
+            return new Gson().toJson(updateGameResponse);
+        } catch (DataAccessException e) {
+            res.status(e.getStatusCode());
+            return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(Map.of("message", e.getMessage()));
+        }
+    }
+
+     */
+
 
 
     private Object clear(Request req, Response res) {

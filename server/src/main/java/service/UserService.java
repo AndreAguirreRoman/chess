@@ -26,7 +26,7 @@ public class UserService {
 
         dataAccess.createUser(newUser);
         String authToken = generateToken();
-        AuthData newAuth = dataAccess.createAuth(user, authToken);
+        AuthData newAuth = dataAccess.createAuth(newUser, authToken);
         System.out.println("Registering user: " + newAuth.userName() + " with token: " + newAuth.authToken());
         return newAuth;
     }
@@ -56,7 +56,7 @@ public class UserService {
     public LogoutResponse logout(LogoutRequest request) throws DataAccessException{
         AuthData userAuth = dataAccess.getAuth(request.authToken());
         if (userAuth == null) {
-            throw new DataAccessException(401, "unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         dataAccess.deleteAuth(request.authToken());
         return new LogoutResponse(200);
