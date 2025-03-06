@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import exception.ResponseException;
 import model.AuthData;
 
 public class ClearService {

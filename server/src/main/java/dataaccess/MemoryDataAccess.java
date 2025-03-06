@@ -41,10 +41,11 @@ public class MemoryDataAccess implements DataAccess{
 
 
     public GameData createGame(GameData gameData) throws DataAccessException {
+        int newGameId = nextGameId++;
         if (gamesList.containsKey(gameData.id())) {
-            throw new DataAccessException(409, "Game already exists");
+            throw new DataAccessException(400, "bad request");
         }
-        gameData = new GameData(nextGameId++, gameData.whiteUsername(),
+        gameData = new GameData(newGameId, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
         gamesList.put(gameData.id(), gameData);
         return gameData;
@@ -61,16 +62,6 @@ public class MemoryDataAccess implements DataAccess{
         return gamesList.values();
     }
 
-    public void updateGameName(int gameId, String gameName) throws DataAccessException{
-        if (!gamesList.containsKey(gameId)){
-            throw new DataAccessException(404, "no game to udpate:(");
-        } else {
-            GameData oldGame = gamesList.get(gameId);
-            GameData updatedGame = new GameData(gameId, oldGame.whiteUsername(),
-                    oldGame.blackUsername(), gameName, oldGame.game());
-            gamesList.put(gameId, updatedGame);
-        }
-    }
 
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException{
         if (authTokens.containsKey(authToken)){
@@ -113,6 +104,7 @@ public class MemoryDataAccess implements DataAccess{
     public AuthData findAuthWithUser(String username){
         for (AuthData existingToken : authTokens.values()){
             if (existingToken.userName().equals(username)) {
+                System.out.println(existingToken.userName());
                 return existingToken;
             }
         }

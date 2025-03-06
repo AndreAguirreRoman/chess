@@ -29,27 +29,27 @@ public class UserService {
         return newAuth;
     }
 
-    /*
-    public UserData getUser(AuthData userAuth) throws DataAccessException{
-        if (dataAccess.getUser(userAuth.userName()) != null){
-            throw new DataAccessException(500, "Something went wrong!");
-        }
-        return dataAccess.getUser(userAuth.userName());
+
+    public AuthData getUserAuth(String userAuth) throws DataAccessException{
+        AuthData user = dataAccess.getAuth(userAuth);
+        return user;
     }
-    */
+
 
     public LoginResult login(UserData request) throws DataAccessException {
+        System.out.println("Login attempt for user: " + request.username());
         UserData user = dataAccess.getUser(request.username());
         if (user == null || !user.password().equals(request.password())){
             throw new DataAccessException(401, "unauthorized");
         }
         AuthData userAuth = dataAccess.findAuthWithUser(user.username());
         if (userAuth != null){
-            return new LoginResult(userAuth.userName(), userAuth.authToken(), 200);
+            return new LoginResult(userAuth.userName(), userAuth.authToken());
         }
         String authToken = generateToken();
         AuthData newUserAuth = dataAccess.createAuth(user, authToken);
-        LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken(), 200);
+        LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken());
+        System.out.println("Returning LoginResult: " + result);
         return result;
     }
 

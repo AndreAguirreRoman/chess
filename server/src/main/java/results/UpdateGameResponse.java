@@ -1,4 +1,4 @@
 package results;
 
-public record UpdateGameResponse(String update) {
+public record UpdateGameResponse(int code) {
 }

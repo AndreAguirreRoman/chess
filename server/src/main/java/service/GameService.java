@@ -27,15 +27,31 @@ public class GameService {
         return new GetGameResponse(games, 200);
     }
 
+
     public UpdateGameResponse updateGame(UpdateGameRequest request) throws DataAccessException{
         getAuthorization(request.authToken());
+        AuthData user = dataAccess.getAuth(request.authToken());
+        GameData game = dataAccess.getGame(request.gameId());
+        if (game == null){
+            throw new DataAccessException(400, "bad request");
+        }
+        String teamColor = request.playerColor();
+        if (teamColor.equalsIgnoreCase("WHITE")){
+            if (game.whiteUsername() != null){
+                throw new DataAccessException(403, "already taken");
+            }
+        } else {
+            if (game.blackUsername() != null){
+                throw new DataAccessException(403, "already taken");
+            }
+        }
         dataAccess.updateGame(request.gameId(), request.authToken(), request.playerColor());
-        return new UpdateGameResponse("Added player to game!");
+        return new UpdateGameResponse(200);
     }
 
     public void getAuthorization(String authToken) throws DataAccessException{
         if (dataAccess.getAuth(authToken) == null){
-            throw new DataAccessException(401, "Not authorized");
+            throw new DataAccessException(401, "unauthorized");
         }
     }
 
