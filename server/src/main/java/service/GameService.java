@@ -18,7 +18,6 @@ public class GameService {
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
         getAuthorization(request.authToken());
         GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), null));
-        System.out.println(" Game created with IDDDD: " + newGame.gameId());
 
         return new CreateGameResponse(newGame.gameId());
     }
@@ -26,38 +25,45 @@ public class GameService {
 
     public GetGameResponse getGames(String authToken) throws DataAccessException{
         getAuthorization(authToken);
-        Collection<GameData> games = dataAccess.listGames();
-        return new GetGameResponse(games, 200);
+        Collection<GameData> games = dataAccess.getGames();
+        return new GetGameResponse(200, games);
     }
 
 
     public UpdateGameResponse updateGame(UpdateGameRequest request) throws DataAccessException{
-        getAuthorization(request.authToken());
-        System.out.println("REQUESTTTT " + request);
-        String teamColor = request.playerColor();
+        System.out.println("REQUEST BEFORE UPDATING GAME " + request);
 
-        GameData game = dataAccess.getGame(request.gameId());
-        System.out.println("GAMEEEE" + game);
+        getAuthorization(request.getAuthToken());
+
+        if (request.getPlayerColor() == null || request.getGameId() == null){
+            throw new DataAccessException(400, "Error bad request");
+        }
+        String teamColor = request.getPlayerColor();
+        Collection<GameData> games = dataAccess.getGames();
+        System.out.println(games);
+        GameData game = dataAccess.getGame(request.getGameId());
+
+
         if (!teamColor.equalsIgnoreCase("WHITE") && !teamColor.equalsIgnoreCase("BLACK")) {
-            throw new DataAccessException(400, "Error no team selected");
+            throw new DataAccessException(400, "Error bad request");
         }
         if (teamColor.equalsIgnoreCase("WHITE")){
             if (game.whiteUsername() != null){
-                throw new DataAccessException(403, "already taken");
+                throw new DataAccessException(403, "Error already taken");
             }
         } else {
             if (game.blackUsername() != null){
-                throw new DataAccessException(403, "already taken");
+                throw new DataAccessException(403, "Error already taken");
             }
         }
-        dataAccess.updateGame(request.gameId(), request.authToken(), request.playerColor());
+        System.out.println("REQUEST BEFORE UPDATING GAME " + request);
+        dataAccess.updateGame(request.getGameId(), request.getAuthToken(), request.getPlayerColor());
         return new UpdateGameResponse(200);
     }
 
     public void getAuthorization(String authToken) throws DataAccessException{
         if (dataAccess.getAuth(authToken) == null){
-            System.out.println("Error in authToken");
-            throw new DataAccessException(401, "unauthorized");
+            throw new DataAccessException(401, "Get auth = Error unauthorized");
         }
     }
 

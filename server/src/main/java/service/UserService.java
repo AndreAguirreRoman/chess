@@ -27,27 +27,32 @@ public class UserService {
         dataAccess.createUser(newUser);
         String authToken = generateToken();
         AuthData newAuth = dataAccess.createAuth(newUser, authToken);
-        System.out.println("Registering user: " + newAuth.userName() + " with token: " + newAuth.authToken());
         return newAuth;
     }
 
 
-    public AuthData getUserAuth(String userAuth) throws DataAccessException{
+    /*public AuthData getUserAuth(String userAuth) throws DataAccessException{
         AuthData user = dataAccess.getAuth(userAuth);
         return user;
     }
 
+     */
+
+
 
     public LoginResult login(UserData request) throws DataAccessException {
         UserData user = dataAccess.getUser(request.username());
+        String authToken = generateToken();
+
         if (user == null || !user.password().equals(request.password())){
             throw new DataAccessException(401, "Error: unauthorized");
         }
         AuthData userAuth = dataAccess.findAuthWithUser(user.username());
         if (userAuth != null){
-            return new LoginResult(userAuth.userName(), userAuth.authToken());
+            dataAccess.deleteAuth(userAuth.authToken());
+            AuthData newAuth = dataAccess.createAuth(user, authToken);
+            return new LoginResult(newAuth.userName(), newAuth.authToken());
         }
-        String authToken = generateToken();
         AuthData newUserAuth = dataAccess.createAuth(user, authToken);
         LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken());
         return result;

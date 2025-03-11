@@ -14,7 +14,7 @@ public class ClearService {
     public void deleteUser(String username) throws DataAccessException{
         AuthData user = dataAccess.findAuthWithUser(username);
         if (user == null){
-            throw new DataAccessException(404, "No user to delete");
+            throw new DataAccessException(400, "No user to delete");
         }
         dataAccess.deleteAuth(user.authToken());
         dataAccess.deleteUser(user.userName());

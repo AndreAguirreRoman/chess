@@ -17,7 +17,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public UserData createUser(UserData user) throws DataAccessException {
         if (usersList.containsKey(user.username())) {
-            throw new DataAccessException(404, "User Already Exists!");
+            throw new DataAccessException(403, "User Already Exists!");
         }
         user = new UserData(nextUserId++, user.username(), user.email(), user.password());
         usersList.put(user.username(), user);
@@ -30,7 +30,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public void deleteUser(String username) throws DataAccessException{
         if (!usersList.containsKey(username)){
-            throw new DataAccessException(404, "User not found!");
+            throw new DataAccessException(400, "User not found!");
         }
         usersList.remove(username);
     }
@@ -42,41 +42,43 @@ public class MemoryDataAccess implements DataAccess{
 
     public GameData createGame(GameData gameData) throws DataAccessException {
         int newGameId = nextGameId++;
-        if (gamesList.containsKey(gameData.gameId())) {
+        if (gamesList.containsKey(newGameId)) {
             throw new DataAccessException(400, "bad request");
         }
         gameData = new GameData(newGameId, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
-        gamesList.put(gameData.gameId(), gameData);
-        System.out.println("Storedddddd game in database: " + gameData);
+
+        gamesList.put(newGameId, gameData);
+        System.out.println("List of games: " + getGames());
         return gameData;
     }
 
     public GameData getGame(int gameId) throws DataAccessException{
+
         if (!gamesList.containsKey(gameId)){
-            throw new DataAccessException(404, "Not such game");
+            System.out.println("GAME ID: " + gameId);
+            throw new DataAccessException(400, "Error Not such game");
         }
         GameData game = gamesList.get(gameId);
-        System.out.println("GET GAMEEE " + game);
         return game;
     }
 
-    public Collection<GameData> listGames() {
+    public Collection<GameData> getGames() {
         return gamesList.values();
     }
-
 
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException{
         if (authTokens.containsKey(authToken)){
             GameData game = getGame(gameId);
+
             if (game == null){
-                throw new DataAccessException(404, "Error Game not found");
+                throw new DataAccessException(400, "Error Game not found ");
             }
             String userName = authTokens.get(authToken).userName();
             GameData newGameData = null;
             if (playerColor.equalsIgnoreCase("WHITE")){
                 if (game.whiteUsername() != null) {
-                    throw new DataAccessException(403, "Error White slot taken");
+                    throw new DataAccessException(403, "Error White slot taken ");
                 }
                 newGameData = new GameData(game.gameId(), userName,
                         game.blackUsername(),game.gameName(), game.game());
@@ -87,8 +89,11 @@ public class MemoryDataAccess implements DataAccess{
                  newGameData = new GameData(game.gameId(), game.whiteUsername(),
                         userName,game.gameName(), game.game());
             }
+            System.out.println("List of games after update: " + getGames());
+
             gamesList.put(gameId, newGameData);
         }
+
     }
 
 
@@ -107,7 +112,6 @@ public class MemoryDataAccess implements DataAccess{
     public AuthData findAuthWithUser(String username){
         for (AuthData existingToken : authTokens.values()){
             if (existingToken.userName().equals(username)) {
-                System.out.println(existingToken.userName());
                 return existingToken;
             }
         }
@@ -115,7 +119,7 @@ public class MemoryDataAccess implements DataAccess{
     }
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
-            throw new DataAccessException(401, "No authorization!");
+            throw new DataAccessException(401, " Get auth in MEMORY DATAACCESS Error unauthorized!");
         }
         return authTokens.get(authToken);
     }

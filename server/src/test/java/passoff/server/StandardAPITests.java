@@ -6,6 +6,7 @@ import passoff.model.*;
 import server.Server;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
@@ -188,12 +189,15 @@ public class StandardAPITests {
     public void goodJoin() {
         //create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
+        System.out.println("CREATED GAME ID: "+ createResult.getGameID());
 
         //join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
-
+        System.out.println("CREATE RESULT GET GAME ID: " + createResult.getGameID());
         //try join
+        System.out.println("JOIN REQUEST: " + joinRequest);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
+        System.out.println("JOIN RESULT: " + joinResult.getMessage());
 
         //check
         assertHttpOk(joinResult);
@@ -266,7 +270,10 @@ public class StandardAPITests {
 
         //try join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, null);
+        System.out.println("JOIN REQUEST BAD ID: " + joinRequest);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
+        System.out.println("JOIN RESULT BAD ID: " + joinResult);
+
 
         //check
         assertHttpBadRequest(joinResult);
@@ -336,6 +343,8 @@ public class StandardAPITests {
         Assertions.assertNotNull(returnedList, "List result did not contain a list of games");
         Comparator<TestListEntry> gameIdComparator = Comparator.comparingInt(TestListEntry::getGameID);
         Arrays.sort(expectedList, gameIdComparator);
+        System.out.println(Arrays.toString(expectedList) + "Expected List");
+        System.out.println(Arrays.toString(returnedList) + "Returned list");
         Arrays.sort(returnedList, gameIdComparator);
 
         //check

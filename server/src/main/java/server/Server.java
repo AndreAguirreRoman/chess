@@ -38,10 +38,9 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         // Register your endpoints and handle exceptions here.
-        Spark.put("/game", this::updateGame);
-
         Spark.delete("/db", this::clear);
-        Spark.get("/game", this::listGames);
+        Spark.get("/game", this::getGames);
+        Spark.put("/game", this::updateGame);
         Spark.post("/user", this::createUser);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
@@ -98,7 +97,6 @@ public class Server {
             res.status(200);
             return new Gson().toJson(result);
         } catch (DataAccessException e) {
-            System.out.println("Logout error: " + e.getMessage());
             res.status(e.getStatusCode());
             return new Gson().toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (Exception e) {
@@ -107,12 +105,14 @@ public class Server {
         }
     }
 
-    private Object listGames(Request req, Response res){
+    private Object getGames(Request req, Response res){
         try {
             String authToken = req.headers("authorization");
             GetGameResponse games = gameService.getGames(authToken);
             res.status(200);
-            return new Gson().toJson(games);
+            var response = new Gson().toJson(games);
+            System.out.println("RESPONSE " + response);
+            return response;
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
             return e.toJson();
@@ -125,18 +125,13 @@ public class Server {
     private Object createGame(Request req, Response res){
         try {
             String authToken = req.headers("authorization");
-            AuthData authData = userService.getUserAuth(authToken);
 
             CreateGameRequest gameName = new Gson().fromJson(req.body(), CreateGameRequest.class);
             CreateGameRequest gameData = new CreateGameRequest(gameName.gameName(), authToken);
 
             CreateGameResponse game = gameService.createGame(gameData);
-
             res.status(200);
-            System.out.println(res.status());
-            System.out.println("Created game with ID: " + game.gameId());
-
-            return new Gson().toJson(Map.of("gameID:", game.gameId()));
+            return new Gson().toJson(Map.of("gameID", game.gameId()));
 
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
@@ -146,17 +141,26 @@ public class Server {
 
     private Object updateGame(Request req, Response res){
         try {
-            String authData = req.headers("authorization");
-            System.out.println(authData);
-            UpdateGameRequest gameInfo = new Gson().fromJson(req.body(), UpdateGameRequest.class);
-            System.out.println("Game info" + gameInfo);
-            UpdateGameRequest gameInfoAuthToken = new UpdateGameRequest(gameInfo.gameId(),authData, gameInfo.playerColor());
-            System.out.println(gameInfoAuthToken);
+            String authToken = req.headers("authorization");
 
+            String requestBody = req.body();
+            System.out.println("RAW BODY: " + requestBody);
 
-            UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoAuthToken);
-            System.out.println(updateGameResponse);
+            UpdateGameRequest gameInfo = new Gson().fromJson(requestBody, UpdateGameRequest.class);
+            System.out.println("GAME INFO: " + gameInfo);
+
+            UpdateGameRequest gameInfoWithAuth = new UpdateGameRequest(
+                    gameInfo.getGameId(), gameInfo.getPlayerColor(), authToken
+            );
+
+            System.out.println("REQUEST WITH AUTH: " + gameInfoWithAuth);
+
+            // Call the service with the updated request
+            UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoWithAuth);
+            System.out.println("GAME RESPONSE: " + updateGameResponse);
+
             res.status(200);
+
             return new Gson().toJson(updateGameResponse);
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
