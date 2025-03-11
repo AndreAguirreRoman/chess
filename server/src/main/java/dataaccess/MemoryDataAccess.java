@@ -80,13 +80,13 @@ public class MemoryDataAccess implements DataAccess{
                 if (game.whiteUsername() != null) {
                     throw new DataAccessException(403, "Error White slot taken ");
                 }
-                newGameData = new GameData(game.gameId(), userName,
+                newGameData = new GameData(game.gameID(), userName,
                         game.blackUsername(),game.gameName(), game.game());
             } else if (playerColor.equalsIgnoreCase("BLACK")){
                 if (game.blackUsername() != null) {
                     throw new DataAccessException(403, "Error Black slot taken");
                 }
-                 newGameData = new GameData(game.gameId(), game.whiteUsername(),
+                 newGameData = new GameData(game.gameID(), game.whiteUsername(),
                         userName,game.gameName(), game.game());
             }
             System.out.println("List of games after update: " + getGames());

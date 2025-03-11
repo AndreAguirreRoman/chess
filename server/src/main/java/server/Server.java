@@ -111,7 +111,7 @@ public class Server {
             GetGameResponse games = gameService.getGames(authToken);
             res.status(200);
             var response = new Gson().toJson(games);
-            System.out.println("RESPONSE " + response);
+            System.out.println("RESPONSE " + new Gson().toJson(games.games()));
             return response;
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
@@ -150,12 +150,11 @@ public class Server {
             System.out.println("GAME INFO: " + gameInfo);
 
             UpdateGameRequest gameInfoWithAuth = new UpdateGameRequest(
-                    gameInfo.getGameId(), gameInfo.getPlayerColor(), authToken
+                    gameInfo.gameID(), gameInfo.playerColor(), authToken
             );
 
             System.out.println("REQUEST WITH AUTH: " + gameInfoWithAuth);
 
-            // Call the service with the updated request
             UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoWithAuth);
             System.out.println("GAME RESPONSE: " + updateGameResponse);
 

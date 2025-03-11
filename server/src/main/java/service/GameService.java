@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import model.AuthData;
 import model.GameData;
 import results.*;
 
@@ -19,29 +18,29 @@ public class GameService {
         getAuthorization(request.authToken());
         GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), null));
 
-        return new CreateGameResponse(newGame.gameId());
+        return new CreateGameResponse(newGame.gameID());
     }
 
 
     public GetGameResponse getGames(String authToken) throws DataAccessException{
         getAuthorization(authToken);
         Collection<GameData> games = dataAccess.getGames();
-        return new GetGameResponse(200, games);
+        return new GetGameResponse(games, 200);
     }
 
 
     public UpdateGameResponse updateGame(UpdateGameRequest request) throws DataAccessException{
         System.out.println("REQUEST BEFORE UPDATING GAME " + request);
 
-        getAuthorization(request.getAuthToken());
+        getAuthorization(request.authToken());
 
-        if (request.getPlayerColor() == null || request.getGameId() == null){
+        if (request.playerColor() == null || request.gameID() == null){
             throw new DataAccessException(400, "Error bad request");
         }
-        String teamColor = request.getPlayerColor();
+        String teamColor = request.playerColor();
         Collection<GameData> games = dataAccess.getGames();
         System.out.println(games);
-        GameData game = dataAccess.getGame(request.getGameId());
+        GameData game = dataAccess.getGame(request.gameID());
 
 
         if (!teamColor.equalsIgnoreCase("WHITE") && !teamColor.equalsIgnoreCase("BLACK")) {
@@ -57,7 +56,7 @@ public class GameService {
             }
         }
         System.out.println("REQUEST BEFORE UPDATING GAME " + request);
-        dataAccess.updateGame(request.getGameId(), request.getAuthToken(), request.getPlayerColor());
+        dataAccess.updateGame(request.gameID(), request.authToken(), request.playerColor());
         return new UpdateGameResponse(200);
     }
 
