@@ -4,7 +4,6 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
-import model.GameData;
 import model.UserData;
 import results.*;
 import service.ClearService;

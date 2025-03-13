@@ -13,7 +13,7 @@ public class GameService {
     public GameService(DataAccess dataAccess){
         this.dataAccess = dataAccess;
     }
-
+    
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
         getAuthorization(request.authToken());
         GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), null));

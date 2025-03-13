@@ -28,17 +28,6 @@ public class MemoryDataAccess implements DataAccess{
         return usersList.get(username);
     }
 
-    public void deleteUser(String username) throws DataAccessException{
-        if (!usersList.containsKey(username)){
-            throw new DataAccessException(400, "User not found!");
-        }
-        usersList.remove(username);
-    }
-
-    public void clearUserList(){
-        usersList.clear();
-    }
-
 
     public GameData createGame(GameData gameData) throws DataAccessException {
         int newGameId = nextGameId++;
@@ -56,7 +45,6 @@ public class MemoryDataAccess implements DataAccess{
     public GameData getGame(int gameId) throws DataAccessException{
 
         if (!gamesList.containsKey(gameId)){
-            System.out.println("GAME ID: " + gameId);
             throw new DataAccessException(400, "Error Not such game");
         }
         GameData game = gamesList.get(gameId);
@@ -97,13 +85,7 @@ public class MemoryDataAccess implements DataAccess{
     }
 
 
-
     public AuthData createAuth(UserData userData, String authToken) throws DataAccessException{
-        for (AuthData existingToken : authTokens.values()){
-            if (existingToken.userName().equals(userData.username())) {
-                return existingToken;
-            }
-        }
         AuthData authData = new AuthData(authToken, userData.username());
         authTokens.put(authData.authToken(), authData);
         return authData;
@@ -119,6 +101,7 @@ public class MemoryDataAccess implements DataAccess{
     }
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
+            System.out.println(authTokens);
             throw new DataAccessException(401, " Get auth in MEMORY DATAACCESS Error unauthorized!");
         }
         return authTokens.get(authToken);

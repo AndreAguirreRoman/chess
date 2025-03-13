@@ -31,29 +31,12 @@ public class UserService {
     }
 
 
-    /*public AuthData getUserAuth(String userAuth) throws DataAccessException{
-        AuthData user = dataAccess.getAuth(userAuth);
-        return user;
-    }
-
-     */
-
-
-
     public LoginResult login(UserData request) throws DataAccessException {
         UserData user = dataAccess.getUser(request.username());
-        String authToken = generateToken();
-
         if (user == null || !user.password().equals(request.password())){
             throw new DataAccessException(401, "Error: unauthorized");
         }
-        AuthData userAuth = dataAccess.findAuthWithUser(user.username());
-        if (userAuth != null){
-            dataAccess.deleteAuth(userAuth.authToken());
-            AuthData newAuth = dataAccess.createAuth(user, authToken);
-            return new LoginResult(newAuth.userName(), newAuth.authToken());
-        }
-        AuthData newUserAuth = dataAccess.createAuth(user, authToken);
+        AuthData newUserAuth = dataAccess.createAuth(user, generateToken());
         LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken());
         return result;
     }

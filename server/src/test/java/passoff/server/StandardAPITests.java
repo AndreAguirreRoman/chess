@@ -363,14 +363,21 @@ public class StandardAPITests {
         assertHttpOk(loginTwo);
         Assertions.assertNotNull(loginTwo.getAuthToken(), "Login result did not contain an authToken");
 
+        System.out.println("EXISTING AUTH first: " + existingAuth);
         Assertions.assertNotEquals(existingAuth, loginOne.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior register");
+        System.out.println("EXISTING AUTH second: " + existingAuth);
         Assertions.assertNotEquals(existingAuth, loginTwo.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior register");
+        System.out.println("EXISTING AUTH third: " + existingAuth);
+
         Assertions.assertNotEquals(loginOne.getAuthToken(), loginTwo.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior login");
 
-
+        System.out.println("EXISTING USER: " + existingUser.getUsername());
+        System.out.println("LOGIN ONE IN TEST: " + loginOne.getAuthToken());
+        System.out.println("LOGIN TWO IN TEST: " + loginTwo.getAuthToken());
+        System.out.println("EXISTING AUTH for creating game: " + existingAuth);
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
         assertHttpOk(createResult);
 
