@@ -117,35 +117,31 @@ public class ChessPiece {
                         ChessGame.TeamColor color, int row, int teamDirection, int colCheckDirection, boolean capture){
 
         int rowChecked = row + teamDirection;
-
         if (inBounds(rowChecked, colCheckDirection)){
-
             ChessPiece frontPiece = board.getPiece(new ChessPosition(rowChecked, colCheckDirection));
             int transformationRow = (color == ChessGame.TeamColor.WHITE)? 8 : 1;
 
             if (capture){
                 if(frontPiece != null && frontPiece.getTeamColor() != color){
-                    if (rowChecked == transformationRow){
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.QUEEN));
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.ROOK));
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.BISHOP));
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.KNIGHT));
-                    } else {
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), null));
-                    }
+                    pawnMove(myPosition, pawnMoves, rowChecked, transformationRow, colCheckDirection);
                 }
             } else {
                 if(frontPiece == null){
-                    if (rowChecked == transformationRow){
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.QUEEN));
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.ROOK));
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.BISHOP));
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.KNIGHT));
-                    } else {
-                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), null));
-                    }
+                    pawnMove(myPosition, pawnMoves, rowChecked, transformationRow, colCheckDirection);
                 }
             }
+        }
+    }
+
+    void pawnMove(ChessPosition myPosition, Collection<ChessMove> pawnMoves,
+                  int rowChecked, int transformationRow, int colCheckDirection) {
+        if (rowChecked == transformationRow){
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.QUEEN));
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.ROOK));
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.BISHOP));
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), PieceType.KNIGHT));
+        } else {
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(rowChecked, colCheckDirection), null));
         }
     }
 
