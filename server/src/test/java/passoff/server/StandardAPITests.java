@@ -34,7 +34,6 @@ public class StandardAPITests {
     public static void init() {
         server = new Server();
         var port = server.run(0);
-        System.out.println("Started test HTTP server on " + port);
 
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
 
@@ -189,15 +188,11 @@ public class StandardAPITests {
     public void goodJoin() {
         //create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
-        System.out.println("CREATED GAME ID: "+ createResult.getGameID());
 
         //join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
-        System.out.println("CREATE RESULT GET GAME ID: " + createResult.getGameID());
         //try join
-        System.out.println("JOIN REQUEST: " + joinRequest);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
-        System.out.println("JOIN RESULT: " + joinResult.getMessage());
 
         //check
         assertHttpOk(joinResult);
@@ -270,9 +265,7 @@ public class StandardAPITests {
 
         //try join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, null);
-        System.out.println("JOIN REQUEST BAD ID: " + joinRequest);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
-        System.out.println("JOIN RESULT BAD ID: " + joinResult);
 
 
         //check
@@ -343,8 +336,6 @@ public class StandardAPITests {
         Assertions.assertNotNull(returnedList, "List result did not contain a list of games");
         Comparator<TestListEntry> gameIdComparator = Comparator.comparingInt(TestListEntry::getGameID);
         Arrays.sort(expectedList, gameIdComparator);
-        System.out.println(Arrays.toString(expectedList) + "Expected List");
-        System.out.println(Arrays.toString(returnedList) + "Returned list");
         Arrays.sort(returnedList, gameIdComparator);
 
         //check
@@ -363,21 +354,14 @@ public class StandardAPITests {
         assertHttpOk(loginTwo);
         Assertions.assertNotNull(loginTwo.getAuthToken(), "Login result did not contain an authToken");
 
-        System.out.println("EXISTING AUTH first: " + existingAuth);
         Assertions.assertNotEquals(existingAuth, loginOne.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior register");
-        System.out.println("EXISTING AUTH second: " + existingAuth);
         Assertions.assertNotEquals(existingAuth, loginTwo.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior register");
-        System.out.println("EXISTING AUTH third: " + existingAuth);
 
         Assertions.assertNotEquals(loginOne.getAuthToken(), loginTwo.getAuthToken(),
                 "Authtoken returned by login matched authtoken from prior login");
 
-        System.out.println("EXISTING USER: " + existingUser.getUsername());
-        System.out.println("LOGIN ONE IN TEST: " + loginOne.getAuthToken());
-        System.out.println("LOGIN TWO IN TEST: " + loginTwo.getAuthToken());
-        System.out.println("EXISTING AUTH for creating game: " + existingAuth);
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
         assertHttpOk(createResult);
 

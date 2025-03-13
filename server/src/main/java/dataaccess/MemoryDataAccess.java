@@ -94,7 +94,7 @@ public class MemoryDataAccess implements DataAccess{
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
             System.out.println(authTokens);
-            throw new DataAccessException(401, " Get auth in MEMORY DATAACCESS Error unauthorized!");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         return authTokens.get(authToken);
     }
