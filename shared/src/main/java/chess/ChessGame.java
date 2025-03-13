@@ -242,10 +242,8 @@ public class ChessGame {
                 for (int y = 1; y < 9; y++) {
                     currentPosition = new ChessPosition(x, y);
                     currentPiece = board.getPiece(new ChessPosition(x, y));
-                    if (currentPiece != null && teamColor == currentPiece.getTeamColor()) {
-                        if (!this.validMoves(currentPosition).isEmpty()) {
-                            return false;
-                        }
+                    if (!isInStalemateCheck(currentPiece, currentPosition)) {
+                        return false;
                     }
                 }
             }
@@ -254,6 +252,15 @@ public class ChessGame {
             return false;
         }
 
+    }
+
+    public boolean isInStalemateCheck(ChessPiece currentPiece, ChessPosition currentPosition){
+        if (currentPiece != null && teamColor == currentPiece.getTeamColor()) {
+            if (!this.validMoves(currentPosition).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
