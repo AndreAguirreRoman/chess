@@ -174,7 +174,8 @@ public class ChessGame {
                     if (currentPiece.getPieceType() == ChessPiece.PieceType.PAWN){
                         ArrayList<String> pawnTypes = new ArrayList<>(Arrays.asList("QUEEN","ROOK", "BISHOP", "KNIGHT"));
                         for (String pawn : pawnTypes) {
-                            if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, updatedKingPosition, ChessPiece.PieceType.valueOf(pawn)))){
+                            if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition,
+                                    updatedKingPosition, ChessPiece.PieceType.valueOf(pawn)))){
                                 return true;
                             }
                         }
@@ -292,7 +293,8 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board) && Objects.equals(whiteKing, chessGame.whiteKing) && Objects.equals(blackKing, chessGame.blackKing);
+        return teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board) && Objects.equals(whiteKing, chessGame.whiteKing)
+                && Objects.equals(blackKing, chessGame.blackKing);
     }
 
     @Override

@@ -91,14 +91,6 @@ public class MemoryDataAccess implements DataAccess{
         return authData;
     }
 
-    public AuthData findAuthWithUser(String username){
-        for (AuthData existingToken : authTokens.values()){
-            if (existingToken.userName().equals(username)) {
-                return existingToken;
-            }
-        }
-        return null;
-    }
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
             System.out.println(authTokens);
