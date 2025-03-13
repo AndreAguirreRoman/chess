@@ -5,14 +5,14 @@ import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import results.LoginResult;
-import results.LogoutRequest;
-import results.LogoutResponse;
+import results.*;
 import server.Server;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -24,7 +24,7 @@ public class ServiceTest {
     private static Server server;
     private static UserData user;
     private static UserData userTwo;
-    private String authToken;
+    private static CreateGameResponse createGameResponse;
 
     @BeforeEach
     public void setUp(){
@@ -33,6 +33,7 @@ public class ServiceTest {
         this.clearService = new ClearService(dataAccess);
         this.gameService = new GameService(dataAccess);
         this.userService = new UserService(dataAccess);
+
 
 
     }
@@ -49,6 +50,7 @@ public class ServiceTest {
 
         user = new UserData(1, "ANDRE","A@A.COM", "BYU");
         userTwo = new UserData(2, "KAREL","A@A.COM", "BYU");
+        createGameResponse = new CreateGameResponse(1);
 
     }
 
@@ -108,10 +110,108 @@ public class ServiceTest {
         assertEquals("Error: unauthorized",e.getMessage());
     }
 
+    @Test
+    @Order(7)
+    @DisplayName("Create Game")
+    public void createGame() throws DataAccessException{
+        AuthData userAuth = userService.register(user);
+        CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+
+        CreateGameResponse gameResponse = gameService.createGame(gameRequest);
+        assertEquals(createGameResponse.gameId(), gameResponse.gameId());
+    }
+
+
+
+    @Test
+    @Order(8)
+    @DisplayName("Create Game Error")
+    public void createGameError() throws DataAccessException{
+        AuthData userAuth = userService.register(user);
+        LogoutRequest lR = new LogoutRequest(userAuth.authToken());
+        userService.logout(lR);
+
+        CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+        DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.createGame(gameRequest), "SOMETHING WENT WRONG");
+        assertEquals("Error: unauthorized",e.getMessage());
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Get Games")
+    public void getGames() throws DataAccessException{
+        AuthData userAuth = userService.register(user);
+        CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+        CreateGameRequest gameRequest2 = new CreateGameRequest("test game2", userAuth.authToken());
+        CreateGameRequest gameRequest3 = new CreateGameRequest("test game3", userAuth.authToken());
+
+        gameService.createGame(gameRequest);
+        gameService.createGame(gameRequest2);
+        gameService.createGame(gameRequest3);
+
+        Collection<GameData> expectedGames = new ArrayList<>();
+        expectedGames.add(new GameData(1, null, null, "test game", null));
+        expectedGames.add(new GameData(2, null, null, "test game2", null));
+        expectedGames.add(new GameData(3, null, null, "test game3", null));
+
+        GetGameResponse getGameResponse = gameService.getGames(userAuth.authToken());
+        assertEquals(expectedGames.size(), getGameResponse.games().size());
+
+    }
+
 
 
     @Test
     @Order(10)
+    @DisplayName("Get Games Error")
+    public void getGamesError() throws DataAccessException{
+        AuthData userAuth = userService.register(user);
+        LogoutRequest lR = new LogoutRequest(userAuth.authToken());
+        userService.logout(lR);
+
+        DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.getGames(userAuth.authToken()), "SOMETHING WENT WRONG");
+        assertEquals("Error: unauthorized",e.getMessage());
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Update Game")
+    public void updateGame() throws DataAccessException{
+        AuthData userAuth = userService.register(user);
+        CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+
+        gameService.createGame(gameRequest);
+        GameData updatedGameExpected = new GameData(1, "ANDRE", null, "test game", null);
+
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "white", userAuth.authToken());
+        gameService.updateGame(updateGameRequest);
+
+        GameData updatedGameResponse = gameService.getGame(1);
+        assertEquals(updatedGameExpected, updatedGameResponse);
+    }
+
+
+
+    @Test
+    @Order(12)
+    @DisplayName("Update Game Error")
+    public void updateGameError() throws DataAccessException{
+        AuthData userAuth = userService.register(user);
+        CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+
+        gameService.createGame(gameRequest);
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, null, userAuth.authToken());
+
+        DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.updateGame(updateGameRequest), "SOMETHING WENT WRONG");
+        assertEquals("Error bad request",e.getMessage());
+    }
+
+
+
+
+
+    @Test
+    @Order(13)
     @DisplayName("Clear all")
     public void clear(){
         assertDoesNotThrow(() -> clearService.deleteEverything());

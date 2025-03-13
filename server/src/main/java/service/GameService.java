@@ -30,7 +30,6 @@ public class GameService {
 
 
     public UpdateGameResponse updateGame(UpdateGameRequest request) throws DataAccessException{
-        System.out.println("REQUEST BEFORE UPDATING GAME " + request);
 
         getAuthorization(request.authToken());
 
@@ -38,8 +37,6 @@ public class GameService {
             throw new DataAccessException(400, "Error bad request");
         }
         String teamColor = request.playerColor();
-        Collection<GameData> games = dataAccess.getGames();
-        System.out.println(games);
         GameData game = dataAccess.getGame(request.gameID());
 
 
@@ -55,12 +52,15 @@ public class GameService {
                 throw new DataAccessException(403, "Error already taken");
             }
         }
-        System.out.println("REQUEST BEFORE UPDATING GAME " + request);
         dataAccess.updateGame(request.gameID(), request.authToken(), request.playerColor());
         return new UpdateGameResponse(200);
     }
 
-    public void getAuthorization(String authToken) throws DataAccessException{
+    public GameData getGame(int gameID) throws DataAccessException {
+        return dataAccess.getGame(gameID);
+    }
+
+    private void getAuthorization(String authToken) throws DataAccessException{
         if (dataAccess.getAuth(authToken) == null){
             throw new DataAccessException(401, "Get auth = Error unauthorized");
         }
