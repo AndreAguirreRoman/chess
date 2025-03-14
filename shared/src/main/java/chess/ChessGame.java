@@ -171,26 +171,26 @@ public class ChessGame {
                 currentPosition = new ChessPosition(x,y);
                 currentPiece = board.getPiece(new ChessPosition(x,y));
                 if (currentPiece != null && teamColor != currentPiece.getTeamColor()){
-                    if (currentPiece.getPieceType() == ChessPiece.PieceType.PAWN){
-                        ArrayList<String> pawnTypes = new ArrayList<>(Arrays.asList("QUEEN","ROOK", "BISHOP", "KNIGHT"));
-                        /*for (String pawn : pawnTypes) {
-                            if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition,
-                                    updatedKingPosition, ChessPiece.PieceType.valueOf(pawn)))){
-                                return true;
-                            }
-                        }
-                        */
-                        if (pawnTypeChecker(pawnTypes, currentPosition, currentPiece, updatedKingPosition)){
-                            return true;
-                        }
-
-                        checkPawnsChecker(currentPiece,currentPosition,updatedKingPosition);
-                    }
-                    if (checkPawnsChecker(currentPiece, currentPosition, updatedKingPosition)){
+                    if (piecePuttingCheck(currentPiece,currentPosition, updatedKingPosition)){
                         return true;
                     }
                 }
             }
+        }
+        return false;
+    }
+
+    public boolean piecePuttingCheck(ChessPiece currentPiece, ChessPosition currentPosition, ChessPosition updatedKingPosition){
+        if (currentPiece.getPieceType() == ChessPiece.PieceType.PAWN){
+            ArrayList<String> pawnTypes = new ArrayList<>(Arrays.asList("QUEEN","ROOK", "BISHOP", "KNIGHT"));
+            if (pawnTypeChecker(pawnTypes, currentPosition, currentPiece, updatedKingPosition)){
+                return true;
+            }
+
+            checkPawnsChecker(currentPiece,currentPosition,updatedKingPosition);
+        }
+        if (checkPawnsChecker(currentPiece, currentPosition, updatedKingPosition)){
+            return true;
         }
         return false;
     }
