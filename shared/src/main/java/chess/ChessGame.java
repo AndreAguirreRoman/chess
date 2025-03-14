@@ -173,23 +173,46 @@ public class ChessGame {
                 if (currentPiece != null && teamColor != currentPiece.getTeamColor()){
                     if (currentPiece.getPieceType() == ChessPiece.PieceType.PAWN){
                         ArrayList<String> pawnTypes = new ArrayList<>(Arrays.asList("QUEEN","ROOK", "BISHOP", "KNIGHT"));
-                        for (String pawn : pawnTypes) {
+                        /*for (String pawn : pawnTypes) {
                             if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition,
                                     updatedKingPosition, ChessPiece.PieceType.valueOf(pawn)))){
                                 return true;
                             }
                         }
-                        if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, updatedKingPosition, null))){
+                        */
+                        if (pawnTypeChecker(pawnTypes, currentPosition, currentPiece, updatedKingPosition)){
                             return true;
                         }
+
+                        checkPawnsChecker(currentPiece,currentPosition,updatedKingPosition);
                     }
-                    if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition, updatedKingPosition, null))){
+                    if (checkPawnsChecker(currentPiece, currentPosition, updatedKingPosition)){
                         return true;
                     }
                 }
             }
         }
         return false;
+    }
+
+    public boolean checkPawnsChecker(ChessPiece currentPiece, ChessPosition currentPosition,
+                                     ChessPosition updatedKingPosition){
+        if (currentPiece.pieceMoves(this.board, currentPosition).contains(new
+                ChessMove(currentPosition, updatedKingPosition, null))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean pawnTypeChecker(ArrayList<String> pawnTypes, ChessPosition currentPosition,
+                                   ChessPiece currentPiece, ChessPosition updatedKingPosition){
+     for (String pawn : pawnTypes) {
+         if (currentPiece.pieceMoves(this.board, currentPosition).contains(new ChessMove(currentPosition,
+                 updatedKingPosition, ChessPiece.PieceType.valueOf(pawn)))) {
+             return true;
+         }
+     }
+     return false;
     }
 
     /**
