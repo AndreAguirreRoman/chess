@@ -46,7 +46,7 @@ public class ServiceTest {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        var port = server.run(9090);
 
         user = new UserData(1, "ANDRE","A@A.COM", "BYU");
         userTwo = new UserData(2, "KAREL","A@A.COM", "BYU");
