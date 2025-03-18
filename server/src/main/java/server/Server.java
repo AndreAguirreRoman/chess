@@ -3,6 +3,7 @@ package server;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySqlDataAccess;
 import model.AuthData;
 import model.UserData;
 import results.*;
@@ -26,10 +27,16 @@ public class Server {
 
 
     public Server(){
+        MySqlDataAccess sql = null;
+        try {
+            sql = new MySqlDataAccess();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         DataAccess dataAccess = new MemoryDataAccess();
-        this.clearService = new ClearService(dataAccess);
-        this.gameService = new GameService(dataAccess);
-        this.userService = new UserService(dataAccess);
+        this.clearService = new ClearService(sql);
+        this.gameService = new GameService(sql);
+        this.userService = new UserService(sql);
 
     }
 
