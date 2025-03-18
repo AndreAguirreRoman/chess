@@ -45,11 +45,11 @@ public class GameService {
         }
         if (teamColor.equalsIgnoreCase("WHITE")){
             if (game.whiteUsername() != null){
-                throw new DataAccessException(401, "Error already taken");
+                throw new DataAccessException(403, "Error already taken");
             }
         } else {
             if (game.blackUsername() != null){
-                throw new DataAccessException(401, "Error already taken");
+                throw new DataAccessException(403, "Error already taken");
             }
         }
         dataAccess.updateGame(request.gameID(), request.authToken(), request.playerColor());

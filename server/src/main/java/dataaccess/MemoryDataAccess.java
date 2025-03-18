@@ -101,7 +101,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public void deleteAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
-            throw new DataAccessException(400, "Error No auth found!");
+            throw new DataAccessException(403, "Error No auth found!");
         }
         authTokens.remove(authToken);
     }

@@ -19,7 +19,7 @@ public class UserService {
             throw new DataAccessException(400, "Error bad request");
         }
         if (dataAccess.getUser(user.username()) != null){
-            throw new DataAccessException(400, "Error already taken");
+            throw new DataAccessException(403, "Error already taken");
         }
 
         UserData newUser = new UserData(0, user.username(), user.email(), user.password());
