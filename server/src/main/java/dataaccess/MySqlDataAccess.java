@@ -59,6 +59,12 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void clear() throws DataAccessException {
+        try {
+            var statement = "TRUNCATE TABLE users, games, auths";
+            executeUpdate(statement);
+        } catch (Exception e) {
+            throw new DataAccessException(500, e.getMessage());
+        }
 
     }
 
@@ -96,15 +102,49 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public GameData createGame(GameData gameData) throws DataAccessException {
-        return null;
+        try {
+            var statement = "INSERT INTO games (id, whiteusername, blackusername, gamename, json) " +
+                    "VALUES (?, ? ,?, ?, ?)";
+            var json = new Gson().toJson(gameData.game());
+            executeUpdate(statement, gameData.gameID(), null, null, gameData.gameName(), json);
+            return gameData;
+        } catch (Exception e) {
+            throw new DataAccessException(500, e.getMessage());
+        }
     }
 
-    public GameData getGame(int gameId) throws DataAccessException {
+    public GameData getGame(int id) {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM games WHERE id=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, id);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         return null;
     }
 
     public Collection<GameData> getGames() {
-        return List.of();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM games WHERE id=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, id);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
@@ -148,6 +188,12 @@ public class MySqlDataAccess implements DataAccess {
         return user;
     }
 
+    private GameData readGame(ResultSet rs) throws SQLException {
+        var json = rs.getString("json");
+        var game = new Gson().fromJson(json, GameData.class);
+        return game;
+    }
+
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -187,9 +233,9 @@ public class MySqlDataAccess implements DataAccess {
             """
             CREATE TABLE IF NOT EXISTS  games (
               `id` int NOT NULL AUTO_INCREMENT,
+              `whiteusername` varchar(100),
+              `blackusername` varchar(100),
               `gamename` varchar(100) NOT NULL,
-              `whiteplayer` varchar(100),
-              `blackplayer` varchar(100),
               `game` varchar(512),
               PRIMARY KEY (`id`),
               INDEX(id)
