@@ -17,7 +17,7 @@ public class MemoryDataAccess implements DataAccess{
 
     public UserData createUser(UserData user) throws DataAccessException {
         if (usersList.containsKey(user.username())) {
-            throw new DataAccessException("User Already Exists!");
+            throw new DataAccessException(401, "User Already Exists!");
         }
         user = new UserData(nextUserId++, user.username(), user.email(), user.password());
         usersList.put(user.username(), user);
@@ -32,7 +32,7 @@ public class MemoryDataAccess implements DataAccess{
     public GameData createGame(GameData gameData) throws DataAccessException {
         int newGameId = nextGameId++;
         if (gamesList.containsKey(newGameId)) {
-            throw new DataAccessException("bad request");
+            throw new DataAccessException(400,"bad request");
         }
         gameData = new GameData(newGameId, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
@@ -45,7 +45,7 @@ public class MemoryDataAccess implements DataAccess{
     public GameData getGame(int gameId) throws DataAccessException{
 
         if (!gamesList.containsKey(gameId)){
-            throw new DataAccessException("Error Not such game");
+            throw new DataAccessException(400, "Error Not such game");
         }
         GameData game = gamesList.get(gameId);
         return game;
@@ -60,19 +60,19 @@ public class MemoryDataAccess implements DataAccess{
             GameData game = getGame(gameId);
 
             if (game == null){
-                throw new DataAccessException("Error Game not found ");
+                throw new DataAccessException(400, "Error Game not found ");
             }
             String userName = authTokens.get(authToken).userName();
             GameData newGameData = null;
             if (playerColor.equalsIgnoreCase("WHITE")){
                 if (game.whiteUsername() != null) {
-                    throw new DataAccessException("Error White slot taken ");
+                    throw new DataAccessException(403, "Error White slot taken ");
                 }
                 newGameData = new GameData(game.gameID(), userName,
                         game.blackUsername(),game.gameName(), game.game());
             } else if (playerColor.equalsIgnoreCase("BLACK")){
                 if (game.blackUsername() != null) {
-                    throw new DataAccessException("Error Black slot taken");
+                    throw new DataAccessException(403, "Error Black slot taken");
                 }
                  newGameData = new GameData(game.gameID(), game.whiteUsername(),
                         userName,game.gameName(), game.game());
@@ -94,14 +94,14 @@ public class MemoryDataAccess implements DataAccess{
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
             System.out.println(authTokens);
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         return authTokens.get(authToken);
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
         if (!authTokens.containsKey(authToken)) {
-            throw new DataAccessException("Error No auth found!");
+            throw new DataAccessException(400, "Error No auth found!");
         }
         authTokens.remove(authToken);
     }

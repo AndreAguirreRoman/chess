@@ -34,22 +34,22 @@ public class GameService {
         getAuthorization(request.authToken());
 
         if (request.playerColor() == null || request.gameID() == null){
-            throw new DataAccessException("Error bad request");
+            throw new DataAccessException(400, "Error bad request");
         }
         String teamColor = request.playerColor();
         GameData game = dataAccess.getGame(request.gameID());
 
 
         if (!teamColor.equalsIgnoreCase("WHITE") && !teamColor.equalsIgnoreCase("BLACK")) {
-            throw new DataAccessException("Error bad request");
+            throw new DataAccessException(400, "Error bad request");
         }
         if (teamColor.equalsIgnoreCase("WHITE")){
             if (game.whiteUsername() != null){
-                throw new DataAccessException("Error already taken");
+                throw new DataAccessException(401, "Error already taken");
             }
         } else {
             if (game.blackUsername() != null){
-                throw new DataAccessException("Error already taken");
+                throw new DataAccessException(401, "Error already taken");
             }
         }
         dataAccess.updateGame(request.gameID(), request.authToken(), request.playerColor());
@@ -62,7 +62,7 @@ public class GameService {
 
     private void getAuthorization(String authToken) throws DataAccessException{
         if (dataAccess.getAuth(authToken) == null){
-            throw new DataAccessException("Get auth = Error unauthorized");
+            throw new DataAccessException(401, "Get auth = Error unauthorized");
         }
     }
 

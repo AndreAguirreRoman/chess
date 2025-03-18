@@ -34,7 +34,7 @@ public class MySqlDataAccess implements DataAccess {
             var json = new Gson().toJson(userHashed);
             executeUpdate(statement, user.username(), user.email(), hashedPassword, json);
         } catch (Exception e){
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException(400, e.getMessage());
         }
         return user;
     }
@@ -69,7 +69,7 @@ public class MySqlDataAccess implements DataAccess {
             executeUpdate(statement, userData.username(), authToken);
             return new AuthData(authToken, userData.username());
         } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException(400, e.getMessage());
         }
     }
 
@@ -169,7 +169,7 @@ public class MySqlDataAccess implements DataAccess {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(400, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -215,7 +215,7 @@ public class MySqlDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(400, String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 }

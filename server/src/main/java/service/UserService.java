@@ -16,10 +16,10 @@ public class UserService {
 
     public AuthData register(UserData user) throws DataAccessException{
         if (user.username() == null || user.password() == null || user.email() == null) {
-            throw new DataAccessException("Error bad request");
+            throw new DataAccessException(400, "Error bad request");
         }
         if (dataAccess.getUser(user.username()) != null){
-            throw new DataAccessException("Error already taken");
+            throw new DataAccessException(400, "Error already taken");
         }
 
         UserData newUser = new UserData(0, user.username(), user.email(), user.password());
@@ -34,7 +34,7 @@ public class UserService {
     public LoginResult login(UserData request) throws DataAccessException {
         UserData user = dataAccess.getUser(request.username());
         if (user == null || !user.password().equals(request.password())){
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         AuthData newUserAuth = dataAccess.createAuth(user, generateToken());
         LoginResult result = new LoginResult(newUserAuth.userName(), newUserAuth.authToken());
@@ -44,7 +44,7 @@ public class UserService {
     public LogoutResponse logout(LogoutRequest request) throws DataAccessException{
         AuthData userAuth = dataAccess.getAuth(request.authToken());
         if (userAuth == null) {
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         dataAccess.deleteAuth(request.authToken());
         return new LogoutResponse(200);

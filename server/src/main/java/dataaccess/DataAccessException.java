@@ -5,13 +5,18 @@ import com.google.gson.Gson;
 import java.util.Map;
 
 public class DataAccessException extends Exception {
-
-    public DataAccessException(String message) {
+    private final int code;
+    public DataAccessException(int code, String message) {
         super(message);
+        this.code = code;
     }
 
 
     public String toJson() {
         return new Gson().toJson(Map.of("message", getMessage()));
+    }
+
+    public int getStatusCode() {
+        return code;
     }
 }
