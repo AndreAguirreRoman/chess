@@ -91,7 +91,8 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
-        DataAccess.super.deleteAuth(authToken);
+        var statement = "DELETE FROM auths where authtoken =?";
+        executeUpdate(statement, authToken);
     }
 
     public GameData createGame(GameData gameData) throws DataAccessException {
