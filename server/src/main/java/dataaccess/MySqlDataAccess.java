@@ -27,14 +27,15 @@ public class MySqlDataAccess implements DataAccess {
     public UserData createUser(UserData user) throws DataAccessException{
         UserData userHashed = null;
         try {
-            var statement = "INSERT INTO users (username, email, password) VALUES (?,?,?)";
+            var statement = "INSERT INTO users (username, email, password, json) VALUES (?,?,?,?)";
             String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
             userHashed = new UserData(user.id(), user.username(), user.email(), hashedPassword);
-            executeUpdate(statement, user.username(), user.email(), hashedPassword);
+            var json = new Gson().toJson(userHashed);
+            executeUpdate(statement, user.username(), user.email(), hashedPassword, json);
+            return userHashed;
         } catch (Exception e){
             throw new DataAccessException(400, e.getMessage());
         }
-        return userHashed;
     }
 
 
@@ -104,28 +105,29 @@ public class MySqlDataAccess implements DataAccess {
         try {
             var statement = "INSERT INTO games (id, whiteplayer, blackplayer, gamename, game) VALUES (?, ? ,?, ?, ?)";
             var gamejson = new Gson().toJson(gameData.game());
-            executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gamejson);
-            return gameData;
+            int gameID = executeUpdate(statement, gameData.gameID() + 1, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gamejson);
+            return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
         } catch (Exception e) {
             throw new DataAccessException(500, e.getMessage());
         }
     }
 
     public GameData getGame(int id) {
+        GameData game = null;
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM games WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, id);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return readGame(rs);
+                        game = readGame(rs);
                     }
                 }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        return null;
+        return game;
     }
 
     public Collection<GameData> getGames() {
@@ -134,7 +136,7 @@ public class MySqlDataAccess implements DataAccess {
             var statement = "SELECT * FROM games";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
+                    while (rs.next()) {
                         result.add(readGame(rs));
                     }
                 }
@@ -172,9 +174,13 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
-        var json = rs.getString("game");
-        var game = new Gson().fromJson(json, GameData.class);
-        return game;
+        int id = rs.getInt("id");
+        String white = rs.getString("whiteplayer");
+        String black = rs.getString("blackplayer");
+        String gamename = rs.getString("gamename");
+        String game = rs.getString("game");
+        var json = new Gson().fromJson(game, ChessGame.class);
+        return new GameData(id,white, black, gamename, json);
     }
 
 
@@ -209,6 +215,7 @@ public class MySqlDataAccess implements DataAccess {
               `username` varchar(100) NOT NULL,
               `password` varchar(100) NOT NULL,
               `email` varchar(100) NOT NULL,
+              `json` varchar(246) NOT NULL,
               PRIMARY KEY (`id`),
               INDEX(id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
