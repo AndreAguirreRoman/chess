@@ -25,16 +25,16 @@ public class MySqlDataAccess implements DataAccess {
 
 
     public UserData createUser(UserData user) throws DataAccessException{
+        UserData userHashed = null;
         try {
-            var statement = "INSERT INTO users (username, email, password, json) VALUES (?,?,?,?)";
+            var statement = "INSERT INTO users (username, email, password) VALUES (?,?,?)";
             String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-            UserData userHashed = new UserData(user.id(), user.username(), user.email(), hashedPassword);
-            var json = new Gson().toJson(userHashed);
-            executeUpdate(statement, user.username(), user.email(), hashedPassword, json);
+            userHashed = new UserData(user.id(), user.username(), user.email(), hashedPassword);
+            executeUpdate(statement, user.username(), user.email(), hashedPassword);
         } catch (Exception e){
             throw new DataAccessException(400, e.getMessage());
         }
-        return user;
+        return userHashed;
     }
 
 
@@ -78,20 +78,21 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public AuthData getAuth(String authToken){
+        AuthData authData = null;
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM auths WHERE authtoken=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return new AuthData(authToken, rs.getString("username"));
+                        authData = new AuthData(authToken, rs.getString("username"));
                     }
                 }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        return null;
+        return authData;
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
@@ -101,10 +102,9 @@ public class MySqlDataAccess implements DataAccess {
 
     public GameData createGame(GameData gameData) throws DataAccessException {
         try {
-            var statement = "INSERT INTO games (id, whiteusername, blackusername, gamename, json) " +
-                    "VALUES (?, ? ,?, ?, ?)";
-            var json = new Gson().toJson(gameData.game());
-            executeUpdate(statement, gameData.gameID(), null, null, gameData.gameName(), json);
+            var statement = "INSERT INTO games (id, whiteplayer, blackplayer, gamename, game) VALUES (?, ? ,?, ?, ?)";
+            var gamejson = new Gson().toJson(gameData.game());
+            executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gamejson);
             return gameData;
         } catch (Exception e) {
             throw new DataAccessException(500, e.getMessage());
@@ -159,9 +159,9 @@ public class MySqlDataAccess implements DataAccess {
 
     private String playerColorDecider(String playerColor){
         if (playerColor.toUpperCase() == "WHITE") {
-            return "whiteusername";
+            return "white";
         } else {
-            return "blackusername";
+            return "black";
         }
     }
 
@@ -172,7 +172,7 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
-        var json = rs.getString("json");
+        var json = rs.getString("game");
         var game = new Gson().fromJson(json, GameData.class);
         return game;
     }
@@ -204,7 +204,7 @@ public class MySqlDataAccess implements DataAccess {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  users (
+            CREATE TABLE IF NOT EXISTS users (
               `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(100) NOT NULL,
               `password` varchar(100) NOT NULL,
@@ -214,10 +214,10 @@ public class MySqlDataAccess implements DataAccess {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
-            CREATE TABLE IF NOT EXISTS  games (
+            CREATE TABLE IF NOT EXISTS games (
               `id` int NOT NULL AUTO_INCREMENT,
-              `whiteusername` varchar(100),
-              `blackusername` varchar(100),
+              `whiteplayer` varchar(100),
+              `blackplayer` varchar(100),
               `gamename` varchar(100) NOT NULL,
               `game` varchar(512),
               PRIMARY KEY (`id`),
@@ -225,7 +225,7 @@ public class MySqlDataAccess implements DataAccess {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
-            CREATE TABLE IF NOT EXISTS  auths (
+            CREATE TABLE IF NOT EXISTS auths (
               `authtoken` varchar(256) NOT NULL,
               `username` varchar(100),
               PRIMARY KEY (`authtoken`),
