@@ -6,13 +6,11 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-//import model.Pet;
-//import model.PetType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -131,57 +129,42 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     public Collection<GameData> getGames() {
+        Collection<GameData> result = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM games WHERE id=?";
+            var statement = "SELECT * FROM games";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, id);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return readGame(rs);
+                        result.add(readGame(rs));
                     }
                 }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        return null;
-    }
-
-    public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
-
-    }
-
-    /*
-
-    public Collection<Pet> listPets() throws DataAccessException {
-        var result = new ArrayList<Pet>();
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM pet";
-            try (var ps = conn.prepareStatement(statement)) {
-                try (var rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        result.add(readPet(rs));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
-        }
         return result;
     }
 
-    public void deletePet(Integer id) throws DataAccessException {
-        var statement = "DELETE FROM pet WHERE id=?";
-        executeUpdate(statement, id);
+    public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
+        String playerColorUpdate = playerColorDecider(playerColor);
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET" + playerColorUpdate + "=? WHERE id=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameId);
+            }
+        } catch (Exception e){
+            throw new DataAccessException(500, e.getMessage());
+        }
     }
 
-    public void deleteAllPets() throws DataAccessException {
-        var statement = "TRUNCATE pet";
-        executeUpdate(statement);
+    private String playerColorDecider(String playerColor){
+        if (playerColor.toUpperCase() == "WHITE") {
+            return "whiteusername";
+        } else {
+            return "blackusername";
+        }
     }
 
-
-     */
     private UserData readUser(ResultSet rs) throws SQLException {
         var json = rs.getString("json");
         var user = new Gson().fromJson(json, UserData.class);
