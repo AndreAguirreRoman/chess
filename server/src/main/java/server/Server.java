@@ -154,7 +154,6 @@ public class Server {
 
             UpdateGameRequest gameInfo = new Gson().fromJson(requestBody, UpdateGameRequest.class);
             System.out.println("GAME INFO: " + gameInfo);
-
             UpdateGameRequest gameInfoWithAuth = new UpdateGameRequest(
                     gameInfo.gameID(), gameInfo.playerColor(), authToken
             );

@@ -52,7 +52,9 @@ public class GameService {
                 throw new DataAccessException(403, "Error already taken");
             }
         }
-        dataAccess.updateGame(request.gameID(), request.authToken(), request.playerColor());
+        String username = dataAccess.getAuth(request.authToken()).userName();
+        System.out.println("Username to add in gameservice" + username);
+        dataAccess.updateGame(request.gameID(), username, request.playerColor());
         return new UpdateGameResponse(200);
     }
 

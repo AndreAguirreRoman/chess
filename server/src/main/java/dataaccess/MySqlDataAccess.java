@@ -121,6 +121,7 @@ public class MySqlDataAccess implements DataAccess {
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         game = readGame(rs);
+                        System.out.println(game.gameName());
                     }
                 }
             }
@@ -149,10 +150,16 @@ public class MySqlDataAccess implements DataAccess {
 
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
         String playerColorUpdate = playerColorDecider(playerColor);
+        System.out.println("player color update: " + playerColorUpdate);
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE games SET" + playerColorUpdate + "=? WHERE id=?";
+            String username = getAuth(authToken).userName();
+            System.out.println(gameId + " GAME IDDDD");
+            System.out.println("Username to join: " + username);
+            var statement = "UPDATE games SET whiteplayer = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, gameId);
+                ps.setInt(2, gameId);
+                ps.setString(1, username);
+                ps.executeUpdate();
             }
         } catch (Exception e){
             throw new DataAccessException(500, e.getMessage());
@@ -160,10 +167,12 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private String playerColorDecider(String playerColor){
-        if (playerColor.toUpperCase() == "WHITE") {
-            return "white";
-        } else {
-            return "black";
+        System.out.println("Player color in decider " + playerColor);
+        if (playerColor.toUpperCase().equals("WHITE")) {
+            return "whiteplayer";
+        }
+        else {
+            return "blackplayer";
         }
     }
 
