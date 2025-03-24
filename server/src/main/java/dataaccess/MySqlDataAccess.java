@@ -10,7 +10,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -56,11 +58,20 @@ public class MySqlDataAccess implements DataAccess {
         return null;
     }
 
-    @Override
+    boolean verifyUser(String username, String providedClearTextPassword) {
+        // read the previously hashed password from the database
+        var hashedPassword = username;
+
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+    }
+
     public void clear() throws DataAccessException {
         try {
-            var statement = "TRUNCATE TABLE users, games, auths";
-            executeUpdate(statement);
+            List<String > tables = Arrays.asList("TRUNCATE TABLE users;","TRUNCATE TABLE games;",
+                    "TRUNCATE TABLE auths;");
+            for (String table : tables){
+                executeUpdate(table);
+            }
         } catch (Exception e) {
             throw new DataAccessException(500, e.getMessage());
         }
@@ -151,14 +162,13 @@ public class MySqlDataAccess implements DataAccess {
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
         String playerColorUpdate = playerColorDecider(playerColor);
         System.out.println("player color update: " + playerColorUpdate);
+        System.out.println(gameId + " GAME IDDDD");
         try (var conn = DatabaseManager.getConnection()) {
-            String username = getAuth(authToken).userName();
-            System.out.println(gameId + " GAME IDDDD");
-            System.out.println("Username to join: " + username);
+            System.out.println("Username to join: " + authToken);
             var statement = "UPDATE games SET whiteplayer = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(2, gameId);
-                ps.setString(1, username);
+                ps.setString(1, authToken);
                 ps.executeUpdate();
             }
         } catch (Exception e){
