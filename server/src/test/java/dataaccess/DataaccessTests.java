@@ -142,9 +142,8 @@ import java.util.Collection;
         @Order(9)
         @DisplayName("Logout")
         public void logout() throws DataAccessException{
-            AuthData userAuth = userService.register(user);
-            LogoutRequest logoutRequest = new LogoutRequest(userAuth.authToken());
-            LogoutResponse logoutResponse = userService.logout(logoutRequest);
+            AuthData user = userService.register(userTwo);
+            LogoutResponse logoutResponse = userService.logout(new LogoutRequest(user.authToken()));
             assertEquals(200, logoutResponse.code());
         }
 
