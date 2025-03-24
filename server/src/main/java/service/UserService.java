@@ -34,7 +34,7 @@ public class UserService {
 
     public LoginResult login(UserData request) throws DataAccessException {
         UserData user = dataAccess.getUser(request.username());
-        if (user == null ||  !BCrypt.checkpw(request.password(), user.password())){
+        if (user == null || !BCrypt.checkpw(request.password(), user.password())){
             throw new DataAccessException(401, "Error: unauthorized");
         }
         AuthData newUserAuth = dataAccess.createAuth(user, generateToken());
