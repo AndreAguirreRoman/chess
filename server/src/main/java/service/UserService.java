@@ -51,6 +51,15 @@ public class UserService {
         return new LogoutResponse(200);
     }
 
+    public UserData getUser(String username) throws DataAccessException {
+        UserData user = dataAccess.getUser(username);
+        if (user == null) {
+            throw new DataAccessException(500, "Error bad request");
+        }
+        return user;
+
+    }
+
 
     private static String generateToken() {
         return UUID.randomUUID().toString();

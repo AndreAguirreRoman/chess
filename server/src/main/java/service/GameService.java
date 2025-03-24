@@ -59,6 +59,11 @@ public class GameService {
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
+        GameData game = dataAccess.getGame(gameID);
+        if (game == null){
+            throw new DataAccessException(500, "Error bad request");
+        }
+
         return dataAccess.getGame(gameID);
     }
 

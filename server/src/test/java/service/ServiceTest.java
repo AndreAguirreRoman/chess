@@ -8,6 +8,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.mindrot.jbcrypt.BCrypt;
 import results.*;
 import server.Server;
 
@@ -47,8 +48,8 @@ public class ServiceTest {
     public static void init() {
         server = new Server();
         var port = server.run(9090);
-
-        user = new UserData(1, "ANDRE","A@A.COM", "BYU");
+        String hashedPassword = BCrypt.hashpw("BYU", BCrypt.gensalt());
+        user = new UserData(1, "ANDRE","A@A.COM", hashedPassword);
         userTwo = new UserData(2, "KAREL","A@A.COM", "BYU");
         createGameResponse = new CreateGameResponse(1);
 
@@ -86,7 +87,8 @@ public class ServiceTest {
     @Order(4)
     @DisplayName("Login Error")
     public void loginError(){
-        DataAccessException e = assertThrows(DataAccessException.class, () -> userService.login(user), "SOMETHING WENT WRONG");
+        UserData userToLogin = new UserData(2, "KAREL","A@A.COM", "BYU");
+        DataAccessException e = assertThrows(DataAccessException.class, () -> userService.login(userToLogin), "SOMETHING WENT WRONG");
         assertEquals("Error: unauthorized",e.getMessage());
     }
 

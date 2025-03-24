@@ -9,11 +9,7 @@ import java.util.Collection;
 public interface DataAccess {
     AuthData createAuth(UserData userData, String authToken) throws DataAccessException;
     AuthData getAuth(String authToken) throws DataAccessException;
-
-    default void deleteAuth(String authToken) throws DataAccessException {
-
-    }
-
+    default void deleteAuth(String authToken) throws DataAccessException {}
     GameData createGame(GameData gameData) throws DataAccessException;
     GameData getGame(int gameId) throws DataAccessException;
     Collection<GameData> getGames();

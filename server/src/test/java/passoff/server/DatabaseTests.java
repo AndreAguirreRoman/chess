@@ -72,7 +72,8 @@ public class DatabaseTests {
         Assertions.assertEquals(game1.getGameID(), createResult.getGameID());
         Assertions.assertEquals(gameName, game1.getGameName(), "Game name changed after restart");
         Assertions.assertEquals(TEST_USER.getUsername(), game1.getWhiteUsername(),
-                "Whi0 = {TestListEntry@4602} \"{gameID=1, gameName='Test Game', whiteUsername='null', blackUsername='null'}\"te player username changed after restart");
+                "Whi0 = {TestListEntry@4602} \"{gameID=1, gameName='Test Game', whiteUsername='null', " +
+                        "blackUsername='null'}\"te player username changed after restart");
 
         //test that we can still log in
         serverFacade.login(TEST_USER);

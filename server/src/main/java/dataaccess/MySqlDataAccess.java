@@ -58,12 +58,6 @@ public class MySqlDataAccess implements DataAccess {
         return null;
     }
 
-    boolean verifyUser(String username, String providedClearTextPassword) {
-        // read the previously hashed password from the database
-        var hashedPassword = username;
-
-        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-    }
 
     public void clear() throws DataAccessException {
         try {
@@ -207,10 +201,18 @@ public class MySqlDataAccess implements DataAccess {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof ChessGame p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    }
+                    else if (param instanceof Integer p){
+                        ps.setInt(i + 1, p);
+                    }
+                    else if (param instanceof ChessGame p){
+                        ps.setString(i + 1, p.toString());
+                    }
+                    else if (param == null){
+                        ps.setNull(i + 1, NULL);
+                    }
                 }
                 ps.executeUpdate();
 

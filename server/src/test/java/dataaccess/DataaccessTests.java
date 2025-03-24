@@ -10,7 +10,10 @@ import server.Server;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+import dataaccess.DataAccess;
 
+
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -26,6 +29,7 @@ import java.util.Collection;
         private static UserData user;
         private static UserData userTwo;
         private static CreateGameResponse createGameResponse;
+        private DataAccess dataAccess;
 
         @BeforeEach
         public void setUp() throws DataAccessException {
@@ -47,16 +51,18 @@ import java.util.Collection;
             server = new Server();
             var port = server.run(9080);
 
-            user = new UserData(1, "ANDRE","A@A.COM", "BYU");
-            userTwo = new UserData(2, "KAREL","A@A.COM", "BYU");
+            user = new UserData(1, "SOFIA","BYU@byu.com", "password");
+            userTwo = new UserData(2, "KAREL","BYU@byu.com", "password");
             createGameResponse = new CreateGameResponse(1);
 
         }
 
+    //"createUser, getUser, clear, createAuth, getAuth, deleteAuth, createGame, getGame, getGames, updateGame"
+
         @Test
         @Order(1)
-        @DisplayName("Register User")
-        public void register(){
+        @DisplayName("Create User DATAACCESS")
+        public void createUserData(){
             AuthData registerResult = assertDoesNotThrow(() -> userService.register(user),
                     "SOMETHING WENT WRONG");
             assertEquals(user.username(), registerResult.userName(),
@@ -65,9 +71,9 @@ import java.util.Collection;
 
         @Test
         @Order(2)
-        @DisplayName("Register User Error")
-        public void registerError(){
-            UserData userWrong = new UserData(2, null,"A@A.COM", "BYU");
+        @DisplayName("Create User Error")
+        public void createUserErrorData(){
+            UserData userWrong = new UserData(2, null,"BYU@byu.com", "password");
             DataAccessException e = assertThrows(DataAccessException.class, ()-> userService.register(userWrong));
             assertEquals("Error bad request",e.getMessage());
         }
@@ -75,7 +81,7 @@ import java.util.Collection;
         @Test
         @Order(3)
         @DisplayName("Login")
-        public void login() throws DataAccessException{
+        public void loginData() throws DataAccessException{
             userService.register(user);
             LoginResult loginResult = assertDoesNotThrow(() -> userService.login(user));
             assertEquals(user.username(), loginResult.username());
@@ -83,14 +89,56 @@ import java.util.Collection;
 
         @Test
         @Order(4)
+        @DisplayName("Get Auth")
+        public void getAuthData() throws DataAccessException{
+            userService.register(user);
+            LoginResult loginResult = assertDoesNotThrow(() -> userService.login(user));
+            String authToken = loginResult.authToken();
+            assertNotNull(authToken);
+        }
+
+        @Test
+        @Order(5)
+        @DisplayName("Get Auth")
+        public void getAuthErrorData() throws DataAccessException{
+            UserData wrongUser = new UserData(100, "uwu", "aa@jaja.com", null);
+            DataAccessException e = assertThrows(DataAccessException.class, () -> userService.register(wrongUser), "SOMETHING WENT WRONG");
+            assertEquals("Error bad request",e.getMessage());
+
+        }
+
+        @Test
+        @Order(6)
+        @DisplayName("Get User")
+        public void getUser() throws DataAccessException{
+            userService.register(user);
+            UserData getResult = assertDoesNotThrow(() -> userService.getUser(user.username()));
+            assertEquals(user.username(), getResult.username());
+        }
+
+        @Test
+        @Order(7)
+        @DisplayName("Get User Error")
+        public void getUserError() throws DataAccessException{
+            userService.register(user);
+            DataAccessException e = assertThrows(DataAccessException.class, () -> userService.getUser(user.email()), "SOMETHING WENT WRONG");
+            assertEquals("Error bad request",e.getMessage());
+
+        }
+
+        @Test
+        @Order(8)
         @DisplayName("Login Error")
         public void loginError(){
             DataAccessException e = assertThrows(DataAccessException.class, () -> userService.login(user), "SOMETHING WENT WRONG");
             assertEquals("Error: unauthorized",e.getMessage());
         }
 
+
+
+
         @Test
-        @Order(5)
+        @Order(9)
         @DisplayName("Logout")
         public void logout() throws DataAccessException{
             AuthData userAuth = userService.register(user);
@@ -100,7 +148,7 @@ import java.util.Collection;
         }
 
         @Test
-        @Order(6)
+        @Order(10)
         @DisplayName("Logout Error")
         public void logoutError(){
 
@@ -110,7 +158,7 @@ import java.util.Collection;
         }
 
         @Test
-        @Order(7)
+        @Order(11)
         @DisplayName("Create Game")
         public void createGame() throws DataAccessException{
             AuthData userAuth = userService.register(user);
@@ -124,7 +172,7 @@ import java.util.Collection;
 
 
         @Test
-        @Order(8)
+        @Order(12)
         @DisplayName("Create Game Error")
         public void createGameError() throws DataAccessException{
             AuthData userAuth = userService.register(user);
@@ -137,7 +185,7 @@ import java.util.Collection;
         }
 
         @Test
-        @Order(9)
+        @Order(13)
         @DisplayName("Get Games")
         public void getGames() throws DataAccessException{
             AuthData userAuth = userService.register(user);
@@ -162,7 +210,7 @@ import java.util.Collection;
 
 
         @Test
-        @Order(10)
+        @Order(14)
         @DisplayName("Get Games Error")
         public void getGamesError() throws DataAccessException{
             AuthData userAuth = userService.register(user);
@@ -174,14 +222,14 @@ import java.util.Collection;
         }
 
         @Test
-        @Order(11)
+        @Order(15)
         @DisplayName("Update Game")
         public void updateGame() throws DataAccessException{
             AuthData userAuth = userService.register(user);
             CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
 
             gameService.createGame(gameRequest);
-            GameData updatedGameExpected = new GameData(1, "ANDRE", null, "test game", null);
+            GameData updatedGameExpected = new GameData(1, "SOFIA", null, "test game", null);
 
             UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "white", userAuth.authToken());
             gameService.updateGame(updateGameRequest);
@@ -193,7 +241,7 @@ import java.util.Collection;
 
 
         @Test
-        @Order(12)
+        @Order(16)
         @DisplayName("Update Game Error")
         public void updateGameError() throws DataAccessException{
             AuthData userAuth = userService.register(user);
@@ -206,15 +254,70 @@ import java.util.Collection;
             assertEquals("Error bad request",e.getMessage());
         }
 
+        @Test
+        @Order(17)
+        @DisplayName("Get game")
+        public void getGame() throws DataAccessException{
+            AuthData userAuth = userService.register(user);
+            CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+            CreateGameResponse gameID = gameService.createGame(gameRequest);
 
+            GameData game = gameService.getGame(1);
+            GameData expectedGame = new GameData(1, null, null, "test game", null);
+            assertEquals(expectedGame, game);
+        }
+
+        @Test
+        @Order(18)
+        @DisplayName("GET Game Error")
+        public void getGameError() throws DataAccessException{
+            AuthData userAuth = userService.register(user);
+            CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+
+            CreateGameResponse gameID  = gameService.createGame(gameRequest);
+            DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.getGame(gameID.gameId() + 1), "SOMETHING WENT WRONG");
+            assertEquals("Error bad request",e.getMessage());
+        }
+
+
+        @Test
+        @Order(19)
+        @DisplayName("Clear all")
+        public void clear(){
+            assertDoesNotThrow(() -> clearService.deleteEverything());
+        }
+
+        @Test
+        @Order(20)
+        @DisplayName("Update Game TWO")
+        public void updateGameTwo() throws DataAccessException{
+            AuthData userAuth = userService.register(user);
+            CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+
+            gameService.createGame(gameRequest);
+            GameData updatedGameExpected = new GameData(1, null, "SOFIA", "test game", null);
+
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "black", userAuth.authToken());
+            gameService.updateGame(updateGameRequest);
+
+            GameData updatedGameResponse = gameService.getGame(1);
+            assertEquals(updatedGameExpected, updatedGameResponse);
+        }
 
 
 
         @Test
-        @Order(13)
-        @DisplayName("Clear all")
-        public void clear(){
-            assertDoesNotThrow(() -> clearService.deleteEverything());
+        @Order(21)
+        @DisplayName("Update Game Error TWO")
+        public void updateGameErrorTwo() throws DataAccessException{
+            AuthData userAuth = userService.register(user);
+            CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+
+            gameService.createGame(gameRequest);
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(null, "white", userAuth.authToken());
+
+            DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.updateGame(updateGameRequest), "SOMETHING WENT WRONG");
+            assertEquals("Error bad request",e.getMessage());
         }
 
 
