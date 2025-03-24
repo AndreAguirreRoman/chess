@@ -114,9 +114,9 @@ public class MySqlDataAccess implements DataAccess {
 
     public GameData createGame(GameData gameData) throws DataAccessException {
         try {
-            var statement = "INSERT INTO games (id, whiteplayer, blackplayer, gamename, game) VALUES (?, ? ,?, ?, ?)";
+            var statement = "INSERT INTO games (whiteplayer, blackplayer, gamename, game) VALUES (? ,?, ?, ?)";
             var gamejson = new Gson().toJson(gameData.game());
-            int gameID = executeUpdate(statement, gameData.gameID() + 1, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gamejson);
+            int gameID = executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gamejson);
             return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
         } catch (Exception e) {
             throw new DataAccessException(500, e.getMessage());
@@ -161,11 +161,10 @@ public class MySqlDataAccess implements DataAccess {
 
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
         String playerColorUpdate = playerColorDecider(playerColor);
-        System.out.println("player color update: " + playerColorUpdate);
-        System.out.println(gameId + " GAME IDDDD");
+
         try (var conn = DatabaseManager.getConnection()) {
             System.out.println("Username to join: " + authToken);
-            var statement = "UPDATE games SET whiteplayer = ? WHERE id = ?";
+            var statement = "UPDATE games SET " + playerColorUpdate + " = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(2, gameId);
                 ps.setString(1, authToken);
