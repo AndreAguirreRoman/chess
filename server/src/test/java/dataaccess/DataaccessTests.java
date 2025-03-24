@@ -80,11 +80,12 @@ import java.util.Collection;
 
         @Test
         @Order(3)
-        @DisplayName("Login")
+        @DisplayName("Login Good one")
         public void loginData() throws DataAccessException{
-            userService.register(user);
-            LoginResult loginResult = assertDoesNotThrow(() -> userService.login(user));
-            assertEquals(user.username(), loginResult.username());
+            userService.register(userTwo);
+            LoginResult loginResult = assertDoesNotThrow(() -> userService.login(userTwo));
+
+            assertEquals(userTwo.username(), loginResult.username());
         }
 
         @Test
@@ -151,8 +152,8 @@ import java.util.Collection;
         @Order(10)
         @DisplayName("Logout Error")
         public void logoutError(){
+            LogoutRequest logoutRequest = new LogoutRequest(null);
 
-            LogoutRequest logoutRequest = new LogoutRequest("1234");
             DataAccessException e = assertThrows(DataAccessException.class, () -> userService.logout(logoutRequest), "SOMETHING WENT WRONG");
             assertEquals("Error: unauthorized",e.getMessage());
         }
@@ -186,21 +187,28 @@ import java.util.Collection;
 
         @Test
         @Order(13)
-        @DisplayName("Get Games")
-        public void getGames() throws DataAccessException{
+        @DisplayName("Get Games SQL")
+        public void getGamesSql() throws DataAccessException{
             AuthData userAuth = userService.register(user);
-            CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
-            CreateGameRequest gameRequest2 = new CreateGameRequest("test game2", userAuth.authToken());
-            CreateGameRequest gameRequest3 = new CreateGameRequest("test game3", userAuth.authToken());
+            CreateGameRequest gameRequestOne = new CreateGameRequest("game", userAuth.authToken());
+            CreateGameRequest gameRequestTwo = new CreateGameRequest("game2", userAuth.authToken());
+            CreateGameRequest gameRequestThree = new CreateGameRequest("game3", userAuth.authToken());
+            CreateGameRequest gameRequestFour = new CreateGameRequest("game4", userAuth.authToken());
+            CreateGameRequest gameRequestFive = new CreateGameRequest("game5", userAuth.authToken());
 
-            gameService.createGame(gameRequest);
-            gameService.createGame(gameRequest2);
-            gameService.createGame(gameRequest3);
+
+            gameService.createGame(gameRequestOne);
+            gameService.createGame(gameRequestTwo);
+            gameService.createGame(gameRequestThree);
+            gameService.createGame(gameRequestFour);
+            gameService.createGame(gameRequestFive);
 
             Collection<GameData> expectedGames = new ArrayList<>();
-            expectedGames.add(new GameData(1, null, null, "test game", null));
-            expectedGames.add(new GameData(2, null, null, "test game2", null));
-            expectedGames.add(new GameData(3, null, null, "test game3", null));
+            expectedGames.add(new GameData(1, null, null, "game", null));
+            expectedGames.add(new GameData(2, null, null, "game2", null));
+            expectedGames.add(new GameData(3, null, null, "game3", null));
+            expectedGames.add(new GameData(4, null, null, "game4", null));
+            expectedGames.add(new GameData(5, null, null, "game5", null));
 
             GetGameResponse getGameResponse = gameService.getGames(userAuth.authToken());
             assertEquals(expectedGames.size(), getGameResponse.games().size());
@@ -211,9 +219,9 @@ import java.util.Collection;
 
         @Test
         @Order(14)
-        @DisplayName("Get Games Error")
-        public void getGamesError() throws DataAccessException{
-            AuthData userAuth = userService.register(user);
+        @DisplayName("Get Games Error in SQL")
+        public void getGamesErrorSql() throws DataAccessException{
+            AuthData userAuth = userService.register(userTwo);
             LogoutRequest lR = new LogoutRequest(userAuth.authToken());
             userService.logout(lR);
 
@@ -242,13 +250,14 @@ import java.util.Collection;
 
         @Test
         @Order(16)
-        @DisplayName("Update Game Error")
-        public void updateGameError() throws DataAccessException{
+        @DisplayName("Update Game Error in SQL")
+        public void updateGameErrorSql() throws DataAccessException{
             AuthData userAuth = userService.register(user);
-            CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
+            CreateGameRequest gameRequest = new CreateGameRequest("test game Error", userAuth.authToken());
 
             gameService.createGame(gameRequest);
-            UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, null, userAuth.authToken());
+            gameService.createGame(gameRequest);
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(2, "WHISHIS", userAuth.authToken());
 
             DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.updateGame(updateGameRequest), "SOMETHING WENT WRONG");
             assertEquals("Error bad request",e.getMessage());
