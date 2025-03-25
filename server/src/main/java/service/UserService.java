@@ -42,6 +42,14 @@ public class UserService {
         return result;
     }
 
+    public UserData getUser(String username) throws DataAccessException {
+        UserData user = dataAccess.getUser(username);
+        if (user == null) {
+            throw new DataAccessException(500, "SOMETHING WENT WRONG");
+        }
+        return user;
+
+    }
     public LogoutResponse logout(LogoutRequest request) throws DataAccessException{
         AuthData userAuth = dataAccess.getAuth(request.authToken());
         if (userAuth == null) {
@@ -49,15 +57,6 @@ public class UserService {
         }
         dataAccess.deleteAuth(request.authToken());
         return new LogoutResponse(200);
-    }
-
-    public UserData getUser(String username) throws DataAccessException {
-        UserData user = dataAccess.getUser(username);
-        if (user == null) {
-            throw new DataAccessException(500, "Error bad request");
-        }
-        return user;
-
     }
 
 
