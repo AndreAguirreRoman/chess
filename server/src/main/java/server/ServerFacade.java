@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import results.LoginResult;
-import results.LogoutResponse;
-import results.RegisterResult;
+import results.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,16 +34,36 @@ public class ServerFacade {
 
     public void logoutUser(AuthData userAuth) throws DataAccessException {
         var path = "/delete";
-        this.makeRequest("DELETE", path, null, null, userAuth.authToken());
+        String authToken = userAuth.authToken();
+        this.makeRequest("DELETE", path, null, null, authToken);
     }
 
-    public Pet[] listPets() throws ResponseException {
-        var path = "/pet";
-        record listPetResponse(Pet[] pet) {
-        }
-        var response = this.makeRequest("GET", path, null, listPetResponse.class);
-        return response.pet();
+    public GetGameResponse getGames(AuthData userAuth) throws DataAccessException {
+        var path = "/game";
+        String authToken = userAuth.authToken();
+        return this.makeRequest("GET", path, null, GetGameResponse.class, authToken);
     }
+
+    public UpdateGameResponse updateGame(UpdateGameRequest updateGameRequest) throws DataAccessException {
+        var path = "game";
+        String authToken = updateGameRequest.authToken();
+        return this.makeRequest("PUT", path, updateGameRequest,
+                UpdateGameResponse.class, authToken);
+    }
+
+    public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws DataAccessException{
+        var path = "game";
+        String authToken = createGameRequest.authToken();
+        return this.makeRequest("POST", path, createGameRequest,
+                CreateGameResponse.class, authToken);
+    }
+
+    public void deleteDatabase() throws DataAccessException {
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null, null);
+    }
+
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authorization) throws DataAccessException {
         try {
@@ -77,16 +95,16 @@ public class ServerFacade {
         }
     }
 
-    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
+    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, DataAccessException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
             try (InputStream respErr = http.getErrorStream()) {
                 if (respErr != null) {
-                    throw ResponseException.fromJson(respErr);
+                    throw new DataAccessException(status, respErr.toString());
                 }
             }
 
-            throw new ResponseException(status, "other failure: " + status);
+            throw new DataAccessException(status, "other failure: " + status);
         }
     }
 
