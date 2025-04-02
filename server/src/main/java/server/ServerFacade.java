@@ -22,14 +22,14 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public RegisterResult addUser(UserData userData) throws DataAccessException {
+    public RegisterResult addUser(RegisterRequest registerRequest) throws DataAccessException {
         var path = "/user";
-        return this.makeRequest("POST", path, userData, RegisterResult.class, null);
+        return this.makeRequest("POST", path, registerRequest, RegisterResult.class, null);
     }
 
-    public LoginResult loginUser(UserData userLogin) throws DataAccessException {
+    public LoginResult loginUser(LoginRequest loginRequest) throws DataAccessException {
         var path = "/session";
-        return this.makeRequest("POST", path, userLogin, LoginResult.class, null);
+        return this.makeRequest("POST", path, loginRequest, LoginResult.class, null);
     }
 
     public void logoutUser(AuthData userAuth) throws DataAccessException {
