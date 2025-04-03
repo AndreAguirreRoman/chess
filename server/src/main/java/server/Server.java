@@ -76,7 +76,7 @@ public class Server {
             return e.toJson();
         } catch (Exception e) {
             res.status(500);
-            return new Gson().toJson(Map.of("message:", e.getMessage()));
+            return new Gson().toJson(Map.of("message: Error line 79", e.getMessage()));
         }
     }
 

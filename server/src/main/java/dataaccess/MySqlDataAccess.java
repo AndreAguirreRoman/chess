@@ -34,7 +34,12 @@ public class MySqlDataAccess implements DataAccess {
             userHashed = new UserData(user.id(), user.username(), user.email(), hashedPassword);
             var json = new Gson().toJson(userHashed);
             executeUpdate(statement, user.username(), user.email(), hashedPassword, json);
-            return userHashed;
+            UserData userForId = getUser(user.username());
+            UserData userHashedFinal = new UserData(userForId.id(), user.username(), user.email(), hashedPassword);
+            var nwJson = new Gson().toJson(userHashedFinal);
+            String updateJson = "UPDATE users SET json = ? WHERE id = ?";
+            executeUpdate(updateJson, nwJson, userForId.id());
+            return userHashedFinal;
         } catch (Exception e){
             throw new DataAccessException(400, e.getMessage());
         }

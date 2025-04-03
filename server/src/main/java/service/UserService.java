@@ -17,7 +17,7 @@ public class UserService {
 
     public AuthData register(UserData user) throws DataAccessException{
         if (user.username() == null || user.password() == null || user.email() == null) {
-            throw new DataAccessException(400, "Error bad request");
+            throw new DataAccessException(400, "Error bad request in Register");
         }
         if (dataAccess.getUser(user.username()) != null){
             throw new DataAccessException(403, "Error already taken");

@@ -1,6 +1,7 @@
 package client;
 import com.sun.nio.sctp.NotificationHandler;
 import dataaccess.DataAccessException;
+import model.UserData;
 import results.LoginRequest;
 import results.LoginResult;
 import results.RegisterRequest;
@@ -33,7 +34,7 @@ public class PreGameClient {
                 case "quit" -> "quit";
                 case "login" -> login(params);
                 case "register" -> register(params);
-                default -> throw new IllegalStateException("Unexpected value: " + cmd);
+                default -> help();
             };
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -41,28 +42,32 @@ public class PreGameClient {
     }
 
     public String login(String... params) throws DataAccessException {
-        if (params.length >= 1) {
+        if (params.length == 2) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             LoginResult loginResult = server.loginUser(loginRequest);
             username = loginResult.username();
             authToken = loginResult.authToken();
-            return String.format("You signed in as %s.", username);
         }
-        throw new DataAccessException(400, "Expected: <yourname>");
+        return (username != null) ? String.format("You signed in as %s.", username) :
+                String.format("TRY AGAIN: Expected <username> <password>");
     }
 
     public String register(String... params) throws DataAccessException {
-        if (params.length > 2){
+        if (params.length == 3) {
             RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult registerResult = server.addUser(registerRequest);
-            username = registerResult.userName();
+            username = registerResult.username();
             authToken = registerResult.authToken();
-            return String.format("You registered as %s.", username);
+            System.out.println(registerResult);
         }
-        throw new DataAccessException(400, "Expected: <username> <password> <email>");
+        return (username != null) ? String.format("You registered as %s.", username) :
+                String.format("TRY AGAIN: Expected <username> <password> <email>");
+
     }
 
-
+    public String getAuthToken() {
+        return authToken;
+    }
 
     public String help(){
         return """

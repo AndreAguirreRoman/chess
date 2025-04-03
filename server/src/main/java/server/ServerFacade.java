@@ -89,6 +89,7 @@ public class ServerFacade {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
+            System.out.println("Sending request body: " + reqData);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
             }
@@ -98,13 +99,14 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, DataAccessException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
+            String errorMessage = "Unknown error";
             try (InputStream respErr = http.getErrorStream()) {
                 if (respErr != null) {
-                    throw new DataAccessException(status, respErr.toString());
+                    errorMessage = new String(respErr.readAllBytes());
                 }
             }
 
-            throw new DataAccessException(status, "other failure: " + status);
+            throw new DataAccessException(status, "other failure: " + errorMessage);
         }
     }
 

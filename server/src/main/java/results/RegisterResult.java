@@ -1,4 +1,4 @@
 package results;
 
-public record RegisterResult(String userName, String authToken, int code) {
+public record RegisterResult(String username, String authToken, int code) {
 }

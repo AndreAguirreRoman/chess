@@ -34,14 +34,14 @@ public class GameService {
         getAuthorization(request.authToken());
 
         if (request.playerColor() == null || request.gameID() == null){
-            throw new DataAccessException(400, "Error bad request");
+            throw new DataAccessException(400, "Error bad in Update request");
         }
         String teamColor = request.playerColor();
         GameData game = dataAccess.getGame(request.gameID());
 
 
         if (!teamColor.equalsIgnoreCase("WHITE") && !teamColor.equalsIgnoreCase("BLACK")) {
-            throw new DataAccessException(400, "Error bad request");
+            throw new DataAccessException(400, "Error bad request in games");
         }
         if (teamColor.equalsIgnoreCase("WHITE")){
             if (game.whiteUsername() != null){
@@ -61,7 +61,7 @@ public class GameService {
     public GameData getGame(int gameID) throws DataAccessException {
         GameData game = dataAccess.getGame(gameID);
         if (game == null){
-            throw new DataAccessException(500, "Error bad request");
+            throw new DataAccessException(500, "Error bad request in get games");
         }
 
         return dataAccess.getGame(gameID);
