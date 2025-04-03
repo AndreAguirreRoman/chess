@@ -15,8 +15,8 @@ public class GameClient {
     private final ServerFacade server;
     private final String serverUrl;
     private final NotificationHandler notificationHandler;
-    String username = null;
-    String authToken = null;
+    String user = null;
+    String token = null;
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler){
         this.serverUrl = serverUrl;
@@ -24,24 +24,20 @@ public class GameClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public String eval(String input){
-        try {
-            var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd){
-                case "help" -> help();
-                case "quit" -> "quit";
-                case "login" -> login(params);
-                case "register" -> register(params);
-                default -> help();
-            };
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public String eval(String input, String username, String authToken){
+        user = username;
+        token = authToken;
+        var tokens = input.toLowerCase().split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd){
+            case "help" -> help();
+            case "quit" -> "quit";
+            default -> help();
+        };
     }
 
-    public String login(String... params) throws DataAccessException {
+    /*public String login(String... params) throws DataAccessException {
         if (params.length == 2) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             LoginResult loginResult = server.loginUser(loginRequest);
@@ -65,10 +61,12 @@ public class GameClient {
 
     }
 
+
+
     public String getAuthToken() {
         return authToken;
     }
-
+ */
     public String help(){
         return """
                 - help -> Displays text informing the user what actions they can take.
@@ -78,6 +76,6 @@ public class GameClient {
                 """;
     }
 
-}
+
 
 }

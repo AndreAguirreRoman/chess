@@ -1,7 +1,6 @@
 package client;
 import com.sun.nio.sctp.NotificationHandler;
 import dataaccess.DataAccessException;
-import model.UserData;
 import results.LoginRequest;
 import results.LoginResult;
 import results.RegisterRequest;
@@ -67,6 +66,10 @@ public class PreGameClient {
 
     public String getAuthToken() {
         return authToken;
+    }
+
+    public String getUsername(){
+        return username;
     }
 
     public String help(){

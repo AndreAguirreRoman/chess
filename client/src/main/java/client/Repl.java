@@ -13,13 +13,16 @@ import java.util.Scanner;
 public class Repl implements NotificationHandler {
     private final GameClient inGameClient;
     private final PreGameClient preGameClient;
-    //private final AuthorizedClient authorizedClient;
+    private final AuthorizedClient authorizedClient;
     String authToken = null;
+    String username = null;
+    boolean inGame = false;
 
 
     public Repl (String serverUrl){
         preGameClient = new PreGameClient(serverUrl, this);
         inGameClient = new GameClient(serverUrl, this);
+        authorizedClient = new AuthorizedClient(serverUrl, this);
     }
 
     public void run(){
@@ -37,6 +40,7 @@ public class Repl implements NotificationHandler {
                 result = preGameClient.eval(line);
                 if (preGameClient.getAuthToken() != null) {
                     authToken = preGameClient.getAuthToken();
+                    username = preGameClient.getUsername();
                 }
                 System.out.println(result);
             } catch (Exception e) {
@@ -47,7 +51,19 @@ public class Repl implements NotificationHandler {
             printPrompt();
             String line = scanner.nextLine();
             try {
-                result = inGameClient.eval(line);
+                result = authorizedClient.eval(line, username, authToken);
+                System.out.println(result);
+
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        while (!result.equals("quit") || inGame == true || authToken != null){
+            printPrompt();
+            String line = scanner.nextLine();
+            try {
+                result = inGameClient.eval(line, username, authToken);
                 System.out.println(result);
 
             } catch (Exception e) {
