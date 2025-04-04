@@ -17,6 +17,9 @@ public class AuthorizedClient {
     String username = null;
     String authToken = null;
     boolean inGame = false;
+    boolean observer = false;
+    int gameID = Integer.parseInt(null);
+
 
     public AuthorizedClient(String serverUrl, NotificationHandler notificationHandler){
         this.serverUrl = serverUrl;
@@ -34,10 +37,10 @@ public class AuthorizedClient {
             return switch (cmd) {
                 case "help" -> help();
                 case "logout" -> logout(authToken, username);
-                case "create game" -> createGame(params);
-                case "list games" -> listGames(authToken);
-                case "play game" -> joinGame(params);
-                case "observe game" -> watchGame(params);
+                case "createGame" -> createGame(params);
+                case "listGames" -> listGames(authToken);
+                case "playGame" -> joinGame(params);
+                case "watchGame" -> watchGame(params);
                 case "quit" -> "quit";
                 default -> help();
 
@@ -59,7 +62,8 @@ public class AuthorizedClient {
             CreateGameRequest createGameRequest = new CreateGameRequest(params[0], authToken);
             CreateGameResponse createGameResponse = server.createGame(createGameRequest);
             gameID = createGameResponse.gameId();
-            System.out.println("Succesfully created game!");
+        } else {
+            return "TRY AGAIN: Expected <Game Name>"
         }
         return String.format("Game created with ID: %d.", gameID);
     }
@@ -79,8 +83,38 @@ public class AuthorizedClient {
 
     }
 
+    public String joinGame(String... params) throws DataAccessException {
+        if (params.length == 2) {
+            try {
+                UpdateGameRequest updateGameRequest = new UpdateGameRequest(
+                        Integer.parseInt(params[0]), params[1], authToken);
+                server.updateGame(updateGameRequest);
+                gameID = Integer.parseInt(params[0]);
+                inGame = true;
+            } catch (Exception e){
+                return ("Error joinning: " + e.getMessage());
+            }
+        } else {
+            return ("Try again: EXPECTED <gameID> <teamColor>");
+        }
+
+        return String.format("Success! Joined as: " + (params[1]) +" color.");
+    }
+
+    public String watchGame(String... params){
+        return "HI";
+    }
+
     public Boolean getInGame(){
         return inGame;
+    }
+
+    public Boolean getObserver(){
+        return observer;
+    }
+
+    public int getGameID(){
+        return gameID;
     }
 
 
@@ -88,11 +122,12 @@ public class AuthorizedClient {
         return """
                 - help -> Displays text informing the user what actions they can take.
                 - quit -> Exits the program.
-                - login <username> -> Login to the server.
-                - register -> Register to game.
+                - logout -> Logout.
+                - createGame <game name>-> Register to game.
+                - listGames -> List the games available.
+                - playGame <gameID> <teamColor> -> Join a game to play.
+                - watchGame <gameID> -> Observe a game.
                 """;
     }
-
-
 
 }
