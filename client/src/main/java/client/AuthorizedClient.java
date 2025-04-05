@@ -5,7 +5,6 @@ import model.GameData;
 import results.*;
 import server.ServerFacade;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -18,7 +17,7 @@ public class AuthorizedClient {
     String authToken = null;
     boolean inGame = false;
     boolean observer = false;
-    int gameID = Integer.parseInt(null);
+    String teamColor = null;
 
 
     public AuthorizedClient(String serverUrl, NotificationHandler notificationHandler){
@@ -27,22 +26,23 @@ public class AuthorizedClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public String eval(String input, String user, String token){
+    public String eval(String input, String user, String token, String teamColor){
         try {
             username = user;
             authToken = token;
+            this.teamColor = teamColor;
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "help" -> help();
+                case "help" -> help("");
                 case "logout" -> logout(authToken, username);
-                case "createGame" -> createGame(params);
-                case "listGames" -> listGames(authToken);
-                case "playGame" -> joinGame(params);
-                case "watchGame" -> watchGame(params);
+                case "creategame" -> createGame(params);
+                case "listgames" -> listGames(authToken);
+                case "playgame" -> joinGame(params);
+                case "watch" -> watchGame(params);
                 case "quit" -> "quit";
-                default -> help();
+                default -> help("INVALID COMMAND!");
 
             };
         } catch (DataAccessException e){
@@ -53,19 +53,19 @@ public class AuthorizedClient {
 
     public String logout(String authToken, String username) throws DataAccessException {
         server.logoutUser(authToken);
-        return String.format(username + " ,you signed out succesfully %s.");
+        this.username = null;
+        this.authToken = null;
+        return String.format(username + " you signed out successfully.");
     }
 
     public String createGame(String... params) throws DataAccessException {
-        int gameID = 0;
         if (params.length == 1) {
             CreateGameRequest createGameRequest = new CreateGameRequest(params[0], authToken);
-            CreateGameResponse createGameResponse = server.createGame(createGameRequest);
-            gameID = createGameResponse.gameId();
+            server.createGame(createGameRequest);
         } else {
-            return "TRY AGAIN: Expected <Game Name>"
+            return "TRY AGAIN: Expected <Game Name>";
         }
-        return String.format("Game created with ID: %d.", gameID);
+        return String.format("Game created with name: %s.", (params[0]));
     }
 
     public String listGames(String authToken) throws DataAccessException {
@@ -73,9 +73,9 @@ public class AuthorizedClient {
         StringBuilder gamesList = new StringBuilder();
 
         for (GameData game : games){
-            gamesList.append("ID: ").append(game.gameID()).append("Game Name: ")
-                    .append(game.gameName()).append("White player: ").append(game.whiteUsername())
-                    .append("Black player: ").append(game.blackUsername()).append("\n");
+            gamesList.append("ID: ").append(game.gameID()).append(" || Game Name: ")
+                    .append(game.gameName()).append(" || whitePlayer: ").append(game.whiteUsername())
+                    .append(" || blackPlayer: ").append(game.blackUsername()).append("\n");
         }
         return (gamesList.isEmpty()) ? "No games yet. Create ONE!"
             : String.format("GAMES: \n" + gamesList);
@@ -89,20 +89,21 @@ public class AuthorizedClient {
                 UpdateGameRequest updateGameRequest = new UpdateGameRequest(
                         Integer.parseInt(params[0]), params[1], authToken);
                 server.updateGame(updateGameRequest);
-                gameID = Integer.parseInt(params[0]);
-                inGame = true;
+                this.inGame = true;
+                this.teamColor = params[1];
             } catch (Exception e){
-                return ("Error joinning: " + e.getMessage());
+                return ("Error joining: " + e.getMessage());
             }
         } else {
             return ("Try again: EXPECTED <gameID> <teamColor>");
         }
-
         return String.format("Success! Joined as: " + (params[1]) +" color.");
     }
 
     public String watchGame(String... params){
-        return "HI";
+        this.inGame = true;
+        this.observer = true;
+        return "Observing game!";
     }
 
     public Boolean getInGame(){
@@ -113,21 +114,26 @@ public class AuthorizedClient {
         return observer;
     }
 
-    public int getGameID(){
-        return gameID;
+    public String getTeamColor(){
+        return teamColor;
+    }
+
+    public String getAuth(){
+        return authToken;
     }
 
 
-    public String help(){
-        return """
+    public String help(String message){
+        String commands = """
                 - help -> Displays text informing the user what actions they can take.
                 - quit -> Exits the program.
                 - logout -> Logout.
-                - createGame <game name>-> Register to game.
-                - listGames -> List the games available.
-                - playGame <gameID> <teamColor> -> Join a game to play.
-                - watchGame <gameID> -> Observe a game.
+                - creategame <game name>-> Register to game.
+                - listgames -> List the games available.
+                - playgame <gameID> <teamColor> -> Join a game to play.
+                - watch <gameID> -> Observe a game.
                 """;
+        return (!message.isEmpty() ? (message) + ("\n") + commands : commands);
     }
 
 }

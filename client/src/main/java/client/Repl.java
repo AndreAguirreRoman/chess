@@ -17,6 +17,8 @@ public class Repl implements NotificationHandler {
     String authToken = null;
     String username = null;
     boolean inGame = false;
+    boolean observer = false;
+    String teamColor = null;
 
 
     public Repl (String serverUrl){
@@ -32,45 +34,54 @@ public class Repl implements NotificationHandler {
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit") || authToken == null){
-            printPrompt();
-            String line = scanner.nextLine();
 
-            try {
-                result = preGameClient.eval(line);
-                if (preGameClient.getAuthToken() != null) {
-                    authToken = preGameClient.getAuthToken();
-                    username = preGameClient.getUsername();
+        while (!result.equals("quit")) {
+            while (!result.equals("quit") && authToken == null){
+                printPrompt();
+                String line = scanner.nextLine();
+
+                try {
+                    result = preGameClient.eval(line);
+                    if (preGameClient.getAuthToken() != null) {
+                        authToken = preGameClient.getAuthToken();
+                        username = preGameClient.getUsername();
+                    }
+                    System.out.println(result);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-                System.out.println(result);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
-        }
-        while (!result.equals("quit") || authToken != null){
-            printPrompt();
-            String line = scanner.nextLine();
-            try {
-                result = authorizedClient.eval(line, username, authToken);
-                System.out.println(result);
+            while (!result.equals("quit") && authToken != null && !inGame){
+                printPrompt();
+                String line = scanner.nextLine();
+                try {
+                    result = authorizedClient.eval(line, username, authToken, teamColor);
+                    inGame = authorizedClient.getInGame();
+                    observer = authorizedClient.getObserver();
+                    teamColor = authorizedClient.getTeamColor();
+                    authToken = authorizedClient.getAuth();
+                    System.out.println(result);
 
 
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
-        while (!result.equals("quit") || inGame == true || authToken != null){
-            printPrompt();
-            String line = scanner.nextLine();
-            try {
-                result = inGameClient.eval(line, username, authToken);
-                System.out.println(result);
+            while (!result.equals("quit") && authToken != null && (observer || inGame)){
+                printPrompt();
+                String line = scanner.nextLine();
+                try {
+                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame);
+                    this.inGame = inGameClient.getInGame();
+                    this.observer = inGameClient.getObserver();
+                    System.out.println(result);
 
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
-        System.out.println();
+
     }
 
     //public void notify(Notification notification) {

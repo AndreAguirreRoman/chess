@@ -33,7 +33,7 @@ public class ServerFacade {
     }
 
     public void logoutUser(String userAuth) throws DataAccessException {
-        var path = "/delete";
+        var path = "/session";
         this.makeRequest("DELETE", path, null, null, userAuth);
     }
 
@@ -43,14 +43,14 @@ public class ServerFacade {
     }
 
     public UpdateGameResponse updateGame(UpdateGameRequest updateGameRequest) throws DataAccessException {
-        var path = "game";
+        var path = "/game";
         String authToken = updateGameRequest.authToken();
         return this.makeRequest("PUT", path, updateGameRequest,
                 UpdateGameResponse.class, authToken);
     }
 
     public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws DataAccessException{
-        var path = "game";
+        var path = "/game";
         String authToken = createGameRequest.authToken();
         return this.makeRequest("POST", path, createGameRequest,
                 CreateGameResponse.class, authToken);
