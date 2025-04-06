@@ -133,6 +133,10 @@ public class AuthorizedClient {
         return authToken;
     }
 
+    public int getGameID(){
+        return gameID;
+    }
+
 
     public String help(String message){
         String commands = """

@@ -7,6 +7,8 @@ import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 
+
+
 import dataaccess.DataAccessException;
 
 import server.ServerFacade;
@@ -24,8 +26,10 @@ public class GameClient {
     String user = null;
     String token = null;
     String teamColor = "observer";
+    int gameID = 0;
     boolean inGame = true;
     boolean observer = false;
+    private WebSocketFacade ws;
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler){
         this.serverUrl = serverUrl;
@@ -34,9 +38,10 @@ public class GameClient {
     }
 
     public String eval(String input, String username, String authToken, String teamColor,
-                       boolean observer, boolean inGame) throws DataAccessException {
+                       boolean observer, boolean inGame, int gameID) throws DataAccessException {
         user = username;
         token = authToken;
+        this.gameID = gameID;
         this.teamColor = teamColor;
         this.inGame = inGame;
         this.observer = observer;
@@ -136,9 +141,19 @@ public class GameClient {
 
 
 
-    public String exitGame(String... params) throws DataAccessException {
+    public String exitGame() throws DataAccessException {
         this.inGame = false;
         this.observer = false;
+        ws = new WebSocketFacade(serverUrl,notificationHandler);
+        ws.exit(this.token, this.gameID);
+
+        return "OUT";
+
+    }
+
+    public String resign() throws DataAccessException {
+        ws = new WebSocketFacade(serverUrl,notificationHandler);
+        ws.resignGame(this.token, this.gameID);
         return "OUT";
 
     }

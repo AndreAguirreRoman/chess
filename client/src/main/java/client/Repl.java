@@ -20,6 +20,7 @@ public class Repl implements NotificationHandler {
     boolean inGame = false;
     boolean observer = false;
     String teamColor = null;
+    int gameID = 0;
 
 
     public Repl (String serverUrl){
@@ -72,7 +73,7 @@ public class Repl implements NotificationHandler {
                 printPrompt();
                 String line = scanner.nextLine();
                 try {
-                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame);
+                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, gameID);
                     this.inGame = inGameClient.getInGame();
                     this.observer = inGameClient.getObserver();
                     System.out.println(result);
