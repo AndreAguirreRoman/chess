@@ -4,7 +4,9 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import com.sun.nio.sctp.NotificationHandler;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
+
 import dataaccess.DataAccessException;
 
 import server.ServerFacade;

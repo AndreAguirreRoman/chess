@@ -1,5 +1,7 @@
 package client;
-import com.sun.nio.sctp.NotificationHandler;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
+
 import dataaccess.DataAccessException;
 import results.LoginRequest;
 import results.LoginResult;
@@ -11,14 +13,11 @@ import java.util.Arrays;
 
 public class PreGameClient {
     private final ServerFacade server;
-    private final String serverUrl;
-    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
     String username = null;
     String authToken = null;
 
     public PreGameClient(String serverUrl, NotificationHandler notificationHandler){
-        this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
         server = new ServerFacade(serverUrl);
 
     }
@@ -46,6 +45,7 @@ public class PreGameClient {
             LoginResult loginResult = server.loginUser(loginRequest);
             username = loginResult.username();
             authToken = loginResult.authToken();
+
         }
         return (username != null) ? String.format("You signed in as %s.", username) :
                 String.format("TRY AGAIN: Expected <username> <password>");

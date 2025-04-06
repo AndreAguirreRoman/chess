@@ -1,10 +1,11 @@
 package client;
 
-import com.sun.nio.sctp.HandlerResult;
-import com.sun.nio.sctp.Notification;
-import com.sun.nio.sctp.NotificationHandler;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
+
 import model.AuthData;
 import ui.EscapeSequences;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 import java.util.Scanner;
@@ -84,18 +85,13 @@ public class Repl implements NotificationHandler {
 
     }
 
-    //public void notify(Notification notification) {
-    //    System.out.println(SET_BG_COLOR_BLUE + notification.message());
-     //   printPrompt();
-    //}
+    public void notify(ServerMessage notification) {
+        System.out.println(SET_BG_COLOR_BLUE + notification.getServerMessageType());
+        printPrompt();
+    }
 
     private void printPrompt() {
         System.out.print("\n" + ">>> ");
     }
 
-
-    @Override
-    public HandlerResult handleNotification(Notification notification, Object attachment) {
-        return null;
-    }
 }

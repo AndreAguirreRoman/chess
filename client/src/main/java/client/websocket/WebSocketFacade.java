@@ -2,10 +2,9 @@ package client.websocket;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import exception.ResponseException;
-import webSocketMessages.Action;
-import webSocketMessages.Notification;
+
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -19,7 +18,7 @@ public class WebSocketFacade extends Endpoint {
     NotificationHandler notificationHandler;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -32,12 +31,12 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new DataAccessException(500, ex.getMessage());
         }
     }
 
@@ -46,7 +45,7 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String authToken, int gameID) throws DataAccessException {
+    public void enterSession(String authToken, int gameID) throws DataAccessException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
@@ -55,11 +54,10 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leavePetShop(String authToken, int gameID) throws DataAccessException {
+    public void resignGame(String authToken, int gameID) throws DataAccessException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
         } catch (IOException ex) {
             throw new DataAccessException(500, ex.getMessage());
         }

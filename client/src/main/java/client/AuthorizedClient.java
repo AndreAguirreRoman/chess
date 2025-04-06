@@ -1,5 +1,7 @@
 package client;
-import com.sun.nio.sctp.NotificationHandler;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
+
 import dataaccess.DataAccessException;
 import model.GameData;
 import results.*;
@@ -15,9 +17,12 @@ public class AuthorizedClient {
     private final NotificationHandler notificationHandler;
     String username = null;
     String authToken = null;
+    int gameID = 0;
     boolean inGame = false;
     boolean observer = false;
     String teamColor = null;
+    private WebSocketFacade ws;
+
 
 
     public AuthorizedClient(String serverUrl, NotificationHandler notificationHandler){
@@ -89,8 +94,11 @@ public class AuthorizedClient {
                 UpdateGameRequest updateGameRequest = new UpdateGameRequest(
                         Integer.parseInt(params[0]), params[1], authToken);
                 server.updateGame(updateGameRequest);
+                this.gameID = Integer.parseInt(params[0]);
                 this.inGame = true;
                 this.teamColor = params[1];
+                ws = new WebSocketFacade(serverUrl, notificationHandler);
+                ws.enterSession(this.authToken, this.gameID);
             } catch (Exception e){
                 return ("Error joining: " + e.getMessage());
             }
@@ -100,9 +108,12 @@ public class AuthorizedClient {
         return String.format("Success! Joined as: " + (params[1]) +" color.");
     }
 
-    public String watchGame(String... params){
+    public String watchGame(String... params) throws DataAccessException {
         this.inGame = true;
         this.observer = true;
+        this.gameID = Integer.parseInt(params[0]);
+        ws = new WebSocketFacade(serverUrl, notificationHandler);
+        ws.enterSession(this.authToken, this.gameID);
         return "Observing game!";
     }
 
@@ -128,7 +139,7 @@ public class AuthorizedClient {
                 - help -> Displays text informing the user what actions they can take.
                 - quit -> Exits the program.
                 - logout -> Logout.
-                - creategame <game name>-> Register to game.
+                - creategame <game name> -> Register to game.
                 - listgames -> List the games available.
                 - playgame <gameID> <teamColor> -> Join a game to play.
                 - watch <gameID> -> Observe a game.
