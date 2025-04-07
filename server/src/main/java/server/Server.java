@@ -10,10 +10,10 @@ import results.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-import spark.*;
 import spark.Response;
 import spark.Request;
 import com.google.gson.Gson;
+import spark.Spark;
 
 import java.util.Map;
 

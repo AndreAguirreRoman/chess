@@ -6,7 +6,7 @@ import dataaccess.DataAccessException;
 import model.GameData;
 import results.CreateGameRequest;
 import results.UpdateGameRequest;
-import server.ServerFacade;
+import client.server.ServerFacade;
 
 import java.util.Arrays;
 import java.util.Collection;

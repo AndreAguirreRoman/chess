@@ -1,4 +1,4 @@
-package java.client;
+package tests;
 
 import dataaccess.DataAccessException;
 import model.GameData;
@@ -7,7 +7,7 @@ import results.CreateGameRequest;
 import results.LoginRequest;
 import results.RegisterRequest;
 import server.Server;
-import server.ServerFacade;
+import client.server.ServerFacade;
 
 import java.util.Collection;
 

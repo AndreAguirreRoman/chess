@@ -11,10 +11,9 @@ import client.websocket.WebSocketFacade;
 
 import dataaccess.DataAccessException;
 
-import server.ServerFacade;
+import client.server.ServerFacade;
 import ui.EscapeSequences;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

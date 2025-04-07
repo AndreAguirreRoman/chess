@@ -7,7 +7,7 @@ import results.LoginRequest;
 import results.LoginResult;
 import results.RegisterRequest;
 import results.RegisterResult;
-import server.ServerFacade;
+import client.server.ServerFacade;
 
 import java.util.Arrays;
 
