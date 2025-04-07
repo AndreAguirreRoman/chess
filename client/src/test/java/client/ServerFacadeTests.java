@@ -1,6 +1,5 @@
-package tests;
+package java.client;
 
-import dataaccess.DataAccessException;
 import exception.DataException;
 import model.GameData;
 import org.junit.jupiter.api.*;

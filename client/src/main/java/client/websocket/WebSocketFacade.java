@@ -1,7 +1,6 @@
 package client.websocket;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 
 import exception.DataException;
 import websocket.commands.UserGameCommand;

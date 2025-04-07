@@ -2,7 +2,7 @@ package client;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 
-import dataaccess.DataAccessException;
+
 import exception.DataException;
 import model.GameData;
 import results.CreateGameRequest;
@@ -152,5 +152,7 @@ public class AuthorizedClient {
                 """;
         return (!message.isEmpty() ? (message) + ("\n") + commands : commands);
     }
+
+
 
 }
