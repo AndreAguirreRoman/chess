@@ -1,9 +1,11 @@
-package clientFacadeTests;
+package java.client;
 
 import dataaccess.DataAccessException;
 import model.GameData;
 import org.junit.jupiter.api.*;
-import results.*;
+import results.CreateGameRequest;
+import results.LoginRequest;
+import results.RegisterRequest;
 import server.Server;
 import server.ServerFacade;
 
@@ -16,9 +18,8 @@ public class ServerFacadeTests {
 
     private static Server server;
     private static ServerFacade facade;
-    private RegisterRequest registerRequestTest = new RegisterRequest("player1",
+    private final RegisterRequest registerRequestTest = new RegisterRequest("player1",
             "password", "p1@email.com");
-
 
     @BeforeAll
     public static void init() throws DataAccessException {

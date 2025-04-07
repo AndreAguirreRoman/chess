@@ -2,8 +2,6 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.AuthData;
-import model.UserData;
 import results.*;
 
 import java.io.IOException;

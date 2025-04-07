@@ -4,7 +4,9 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import results.*;
+import results.LoginResult;
+import results.LogoutRequest;
+import results.LogoutResponse;
 
 import java.util.UUID;
 

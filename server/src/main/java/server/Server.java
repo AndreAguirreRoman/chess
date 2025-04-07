@@ -15,8 +15,6 @@ import spark.Response;
 import spark.Request;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 public class Server {

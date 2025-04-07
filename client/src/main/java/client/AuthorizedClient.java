@@ -4,7 +4,8 @@ import client.websocket.WebSocketFacade;
 
 import dataaccess.DataAccessException;
 import model.GameData;
-import results.*;
+import results.CreateGameRequest;
+import results.UpdateGameRequest;
 import server.ServerFacade;
 
 import java.util.Arrays;
