@@ -45,18 +45,18 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterSession(String authToken, int gameID) throws DataAccessException {
+    public void enterSession(String authToken, String username, int gameID) throws DataAccessException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, username, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new DataAccessException(500, ex.getMessage());
         }
     }
 
-    public void exit(String authToken, int gameID) throws DataAccessException {
+    public void exit(String authToken, String username, int gameID) throws DataAccessException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, username, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {
@@ -64,9 +64,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void resignGame(String authToken, int gameID) throws DataAccessException {
+    public void resignGame(String authToken, String username, int gameID) throws DataAccessException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, username, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {

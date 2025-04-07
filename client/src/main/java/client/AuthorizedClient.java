@@ -98,7 +98,7 @@ public class AuthorizedClient {
                 this.inGame = true;
                 this.teamColor = params[1];
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
-                ws.enterSession(this.authToken, this.gameID);
+                ws.enterSession(this.authToken, this.username, this.gameID);
             } catch (Exception e){
                 return ("Error joining: " + e.getMessage());
             }
@@ -113,7 +113,7 @@ public class AuthorizedClient {
         this.observer = true;
         this.gameID = Integer.parseInt(params[0]);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
-        ws.enterSession(this.authToken, this.gameID);
+        ws.enterSession(this.authToken, this.username, this.gameID);
         return "Observing game!";
     }
 

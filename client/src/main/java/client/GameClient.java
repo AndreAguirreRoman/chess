@@ -14,6 +14,7 @@ import dataaccess.DataAccessException;
 import server.ServerFacade;
 import ui.EscapeSequences;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,8 +53,9 @@ public class GameClient {
             case "help" -> help();
             case "quit" -> "quit";
             case "board" -> drawBoard(teamColor, observer);
-            case "exit" -> exitGame();
-
+            case "leave" -> exitGame();
+            case "resign" -> resign();
+            case "legalmoves" -> legalMoves();
             default -> help();
         };
     }
@@ -145,7 +147,7 @@ public class GameClient {
         this.inGame = false;
         this.observer = false;
         ws = new WebSocketFacade(serverUrl,notificationHandler);
-        ws.exit(this.token, this.gameID);
+        ws.exit(this.token, this.user, this.gameID);
 
         return "OUT";
 
@@ -153,9 +155,13 @@ public class GameClient {
 
     public String resign() throws DataAccessException {
         ws = new WebSocketFacade(serverUrl,notificationHandler);
-        ws.resignGame(this.token, this.gameID);
+        ws.resignGame(this.token, this.user, this.gameID);
         return "OUT";
 
+    }
+
+    public String legalMoves() throws DataAccessException {
+        return "LEGAL MOVES";
     }
 
     public boolean getInGame(){
@@ -172,7 +178,9 @@ public class GameClient {
                 - help -> Displays text informing the user what actions they can take.
                 - quit -> Exits the program.
                 - board -> Show current board.
-                - exit -> Register to game.
+                - leave -> Leave game.
+                - resign -> resign game.
+                - legalmoves -> Highlights allowed moves for a piece.
                 """;
     }
 
