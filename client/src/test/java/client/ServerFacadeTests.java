@@ -68,11 +68,8 @@ public class ServerFacadeTests {
     @Test
     void logoutUser() throws Exception {
         var authData = facade.addUser(registerRequestTest);
-        try {
-            facade.logoutUser(authData.authToken());
-        } catch (DataException e) {
-            throw new RuntimeException(e);
-        }
+
+        assertDoesNotThrow(() -> facade.logoutUser(authData.authToken()));
 
     }
 
@@ -104,11 +101,9 @@ public class ServerFacadeTests {
         Collection<GameData> games = facade.getGames(authData.authToken()).games();
         UpdateGameRequest updateGameRequest = new UpdateGameRequest(1,
                 "white", authData.authToken());
-        try {
-            facade.updateGame(updateGameRequest);
-        } catch (DataException e) {
-            throw new RuntimeException(e);
-        }
+
+        assertDoesNotThrow(() -> facade.updateGame(updateGameRequest));
+
 
     }
 
@@ -140,11 +135,7 @@ public class ServerFacadeTests {
     }
     @Test
     void deleteDb() throws Exception {
-        try {
-            facade.deleteDatabase();
-        } catch (DataException e) {
-            throw new RuntimeException(e);
-        }
+        assertDoesNotThrow(() -> facade.deleteDatabase());
     }
 
 
