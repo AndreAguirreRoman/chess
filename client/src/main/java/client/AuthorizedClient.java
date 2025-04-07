@@ -3,10 +3,11 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 
 import dataaccess.DataAccessException;
+import exception.DataException;
 import model.GameData;
 import results.CreateGameRequest;
 import results.UpdateGameRequest;
-import client.server.ServerFacade;
+import server.ServerFacade;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,20 +52,20 @@ public class AuthorizedClient {
                 default -> help("INVALID COMMAND!");
 
             };
-        } catch (DataAccessException e){
+        } catch (DataException e){
             throw new RuntimeException(e);
         }
 
     }
 
-    public String logout(String authToken, String username) throws DataAccessException {
+    public String logout(String authToken, String username) throws DataException {
         server.logoutUser(authToken);
         this.username = null;
         this.authToken = null;
         return String.format(username + " you signed out successfully.");
     }
 
-    public String createGame(String... params) throws DataAccessException {
+    public String createGame(String... params) throws DataException {
         if (params.length == 1) {
             CreateGameRequest createGameRequest = new CreateGameRequest(params[0], authToken);
             server.createGame(createGameRequest);
@@ -74,7 +75,7 @@ public class AuthorizedClient {
         return String.format("Game created with name: %s.", (params[0]));
     }
 
-    public String listGames(String authToken) throws DataAccessException {
+    public String listGames(String authToken) throws DataException {
         Collection<GameData> games = server.getGames(authToken).games();
         StringBuilder gamesList = new StringBuilder();
 
@@ -89,7 +90,7 @@ public class AuthorizedClient {
 
     }
 
-    public String joinGame(String... params) throws DataAccessException {
+    public String joinGame(String... params) throws DataException {
         if (params.length == 2) {
             try {
                 UpdateGameRequest updateGameRequest = new UpdateGameRequest(
@@ -109,7 +110,7 @@ public class AuthorizedClient {
         return String.format("Success! Joined as: " + (params[1]) +" color.");
     }
 
-    public String watchGame(String... params) throws DataAccessException {
+    public String watchGame(String... params) throws DataException {
         this.inGame = true;
         this.observer = true;
         this.gameID = Integer.parseInt(params[0]);

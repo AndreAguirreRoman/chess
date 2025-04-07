@@ -1,13 +1,14 @@
 package tests;
 
 import dataaccess.DataAccessException;
+import exception.DataException;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import results.CreateGameRequest;
 import results.LoginRequest;
 import results.RegisterRequest;
 import server.Server;
-import client.server.ServerFacade;
+import server.ServerFacade;
 
 import java.util.Collection;
 
@@ -22,7 +23,7 @@ public class ServerFacadeTests {
             "password", "p1@email.com");
 
     @BeforeAll
-    public static void init() throws DataAccessException {
+    public static void init() throws DataException {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
@@ -31,12 +32,12 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    void resetDB() throws DataAccessException {
+    void resetDB() throws DataException {
         facade.deleteDatabase();
     }
 
     @AfterAll
-    static void stopServer() throws DataAccessException {
+    static void stopServer() throws DataException {
         facade.deleteDatabase();
         server.stop();
     }
@@ -49,7 +50,7 @@ public class ServerFacadeTests {
     @Test
     void addUserError() throws Exception {
 
-        assertThrows(DataAccessException.class, () ->
+        assertThrows(DataException.class, () ->
                 facade.addUser(null));
     }
 
@@ -63,7 +64,7 @@ public class ServerFacadeTests {
 
     @Test
     void loginUserError() throws Exception {
-        assertThrows(DataAccessException.class, () ->
+        assertThrows(DataException.class, () ->
                 facade.loginUser(null));
     }
 
@@ -78,7 +79,7 @@ public class ServerFacadeTests {
 
     @Test
     void getGamesError() throws Exception {
-        assertThrows(DataAccessException.class, () ->
+        assertThrows(DataException.class, () ->
                 facade.getGames(null));
     }
 
@@ -88,7 +89,7 @@ public class ServerFacadeTests {
         var authData = facade.addUser(registerRequestTest);
         try {
             facade.logoutUser(authData.authToken());
-        } catch (DataAccessException e) {
+        } catch (DataException e) {
             throw new RuntimeException(e);
         }
 
@@ -96,7 +97,7 @@ public class ServerFacadeTests {
 
     @Test
     void logoutUserError() throws Exception {
-        assertThrows(DataAccessException.class, () ->
+        assertThrows(DataException.class, () ->
                 facade.logoutUser(null));
     }
     @Test
@@ -121,7 +122,7 @@ public class ServerFacadeTests {
     void deleteDb() throws Exception {
         try {
             facade.deleteDatabase();
-        } catch (DataAccessException e) {
+        } catch (DataException e) {
             throw new RuntimeException(e);
         }
     }

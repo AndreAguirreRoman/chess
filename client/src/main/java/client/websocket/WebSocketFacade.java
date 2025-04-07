@@ -3,6 +3,7 @@ package client.websocket;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 
+import exception.DataException;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -18,7 +19,7 @@ public class WebSocketFacade extends Endpoint {
     NotificationHandler notificationHandler;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataAccessException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws DataException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -36,7 +37,7 @@ public class WebSocketFacade extends Endpoint {
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new DataAccessException(500, ex.getMessage());
+            throw new DataException(500, ex.getMessage());
         }
     }
 
@@ -45,32 +46,32 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterSession(String authToken, String username, int gameID) throws DataAccessException {
+    public void enterSession(String authToken, String username, int gameID) throws DataException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, username, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
-            throw new DataAccessException(500, ex.getMessage());
+            throw new DataException(500, ex.getMessage());
         }
     }
 
-    public void exit(String authToken, String username, int gameID) throws DataAccessException {
+    public void exit(String authToken, String username, int gameID) throws DataException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, username, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {
-            throw new DataAccessException(500, ex.getMessage());
+            throw new DataException(500, ex.getMessage());
         }
     }
 
-    public void resignGame(String authToken, String username, int gameID) throws DataAccessException {
+    public void resignGame(String authToken, String username, int gameID) throws DataException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, username, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {
-            throw new DataAccessException(500, ex.getMessage());
+            throw new DataException(500, ex.getMessage());
         }
     }
 

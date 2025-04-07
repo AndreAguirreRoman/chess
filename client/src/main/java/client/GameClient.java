@@ -9,9 +9,9 @@ import client.websocket.WebSocketFacade;
 
 
 
-import dataaccess.DataAccessException;
+import exception.DataException;
 
-import client.server.ServerFacade;
+import server.ServerFacade;
 import ui.EscapeSequences;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class GameClient {
     }
 
     public String eval(String input, String username, String authToken, String teamColor,
-                       boolean observer, boolean inGame, int gameID) throws DataAccessException {
+                       boolean observer, boolean inGame, int gameID) throws DataException {
         user = username;
         token = authToken;
         this.gameID = gameID;
@@ -59,7 +59,7 @@ public class GameClient {
         };
     }
 
-    public String drawBoard(String teamColor, boolean observer) throws DataAccessException {
+    public String drawBoard(String teamColor, boolean observer) throws DataException {
         if (observer == true) {
             teamColor = "white";
         }
@@ -142,7 +142,7 @@ public class GameClient {
 
 
 
-    public String exitGame() throws DataAccessException {
+    public String exitGame() throws DataException {
         this.inGame = false;
         this.observer = false;
         ws = new WebSocketFacade(serverUrl,notificationHandler);
@@ -152,14 +152,14 @@ public class GameClient {
 
     }
 
-    public String resign() throws DataAccessException {
+    public String resign() throws DataException {
         ws = new WebSocketFacade(serverUrl,notificationHandler);
         ws.resignGame(this.token, this.user, this.gameID);
         return "OUT";
 
     }
 
-    public String legalMoves() throws DataAccessException {
+    public String legalMoves() throws DataException {
         return "LEGAL MOVES";
     }
 

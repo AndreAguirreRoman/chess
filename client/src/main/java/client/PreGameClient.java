@@ -2,12 +2,12 @@ package client;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 
-import dataaccess.DataAccessException;
+import exception.DataException;
 import results.LoginRequest;
 import results.LoginResult;
 import results.RegisterRequest;
 import results.RegisterResult;
-import client.server.ServerFacade;
+import server.ServerFacade;
 
 import java.util.Arrays;
 
@@ -34,12 +34,12 @@ public class PreGameClient {
                 case "register" -> register(params);
                 default -> help();
             };
-        } catch (DataAccessException e) {
+        } catch (DataException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String login(String... params) throws DataAccessException {
+    public String login(String... params) throws DataException {
         if (params.length == 2) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             LoginResult loginResult = server.loginUser(loginRequest);
@@ -51,7 +51,7 @@ public class PreGameClient {
                 String.format("TRY AGAIN: Expected <username> <password>");
     }
 
-    public String register(String... params) throws DataAccessException {
+    public String register(String... params) throws DataException {
         if (params.length == 3) {
             RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult registerResult = server.addUser(registerRequest);
