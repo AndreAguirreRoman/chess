@@ -3,9 +3,7 @@ package java.client;
 import exception.DataException;
 import model.GameData;
 import org.junit.jupiter.api.*;
-import results.CreateGameRequest;
-import results.LoginRequest;
-import results.RegisterRequest;
+import results.*;
 import server.Server;
 import server.ServerFacade;
 
@@ -68,22 +66,6 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void getGames() throws Exception {
-        var authData = facade.addUser(registerRequestTest);
-        CreateGameRequest createGameRequest = new CreateGameRequest("Test1", authData.authToken());
-        facade.createGame(createGameRequest);
-        Collection<GameData> games = facade.getGames(authData.authToken()).games();
-        assertFalse(games.isEmpty());
-    }
-
-    @Test
-    void getGamesError() throws Exception {
-        assertThrows(DataException.class, () ->
-                facade.getGames(null));
-    }
-
-
-    @Test
     void logoutUser() throws Exception {
         var authData = facade.addUser(registerRequestTest);
         try {
@@ -99,6 +81,45 @@ public class ServerFacadeTests {
         assertThrows(DataException.class, () ->
                 facade.logoutUser(null));
     }
+    @Test
+    void getGames() throws Exception {
+        var authData = facade.addUser(registerRequestTest);
+        CreateGameRequest createGameRequest = new CreateGameRequest("Test1", authData.authToken());
+        facade.createGame(createGameRequest);
+        Collection<GameData> games = facade.getGames(authData.authToken()).games();
+        assertFalse(games.isEmpty());
+    }
+
+    @Test
+    void getGamesError() throws Exception {
+        assertThrows(DataException.class, () ->
+                facade.getGames(null));
+    }
+
+    @Test
+    void updateGame() throws Exception {
+        var authData = facade.addUser(registerRequestTest);
+        CreateGameRequest createGameRequest = new CreateGameRequest("Test1", authData.authToken());
+        facade.createGame(createGameRequest);
+        Collection<GameData> games = facade.getGames(authData.authToken()).games();
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1,
+                "white", authData.authToken());
+        try {
+            facade.updateGame(updateGameRequest);
+        } catch (DataException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Test
+    void updateGameError() throws Exception {
+        assertThrows(NullPointerException.class, () ->
+                facade.updateGame(null));
+    }
+
+
+
     @Test
     void createGame() throws Exception {
         var authData = facade.addUser(registerRequestTest);
