@@ -1,4 +1,4 @@
-/*package websocket;
+package websocket;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
@@ -41,14 +41,14 @@ public class WebSocketHandler {
     private void exit(String visitorName) throws IOException {
         connections.remove(visitorName);
         var message = String.format("%s left the shop", visitorName);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.DEPARTURE, message);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         connections.broadcast(visitorName, notification);
     }
 
     public void makeNoise(String petName, String sound) throws DataAccessException {
         try {
             var message = String.format("%s says %s", petName, sound);
-            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOISE, message);
+            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             connections.broadcast("", notification);
         } catch (Exception ex) {
             throw new DataAccessException(500, ex.getMessage());
@@ -56,4 +56,3 @@ public class WebSocketHandler {
     }
 }
 
- */
