@@ -78,11 +78,11 @@ public class AuthorizedClient {
     public String listGames(String authToken) throws DataException {
         Collection<GameData> games = server.getGames(authToken).games();
         StringBuilder gamesList = new StringBuilder();
-
+        int index = 1;
         for (GameData game : games){
-            gamesList.append("ID: ").append(game.gameID()).append(" || Game Name: ")
-                    .append(game.gameName()).append(" || whitePlayer: ").append(game.whiteUsername())
-                    .append(" || blackPlayer: ").append(game.blackUsername()).append("\n");
+            gamesList.append(index++).append(" ").append(" || Game Name: ")
+                    .append(game.gameName()).append(" || whitePlayer: ").append(game.whiteUsername() == null ? "Empty" : game.whiteUsername())
+                    .append(" || blackPlayer: ").append(game.blackUsername() == null ? "Empty" : game.blackUsername()).append("\n");
         }
         return (gamesList.isEmpty()) ? "No games yet. Create ONE!"
             : String.format("GAMES: \n" + gamesList);
@@ -90,9 +90,13 @@ public class AuthorizedClient {
 
     }
 
+
     public String joinGame(String... params) throws DataException {
         if (params.length == 2) {
             try {
+                if (!params[1].toUpperCase().equals("WHITE") && !params[1].toUpperCase().equals("BLACK")) {
+                    return "You chose an invalid team! Choose from: white and black";
+                }
                 UpdateGameRequest updateGameRequest = new UpdateGameRequest(
                         Integer.parseInt(params[0]), params[1], authToken);
                 server.updateGame(updateGameRequest);
@@ -101,7 +105,12 @@ public class AuthorizedClient {
                 this.teamColor = params[1];
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
                 ws.enterSession(this.authToken, this.username, this.gameID);
-            } catch (Exception e){
+            } catch (NumberFormatException e) {
+                return ("Error. Game ID must be an integer!");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return ("Missing parameters!");
+            } catch (Exception e) {
+
                 return ("Error joining: " + e.getMessage());
             }
         } else {
@@ -123,6 +132,11 @@ public class AuthorizedClient {
         return inGame;
     }
 
+    public void setInGame(boolean inGame){
+        this.inGame = false;
+        this.observer = false;
+    }
+
     public Boolean getObserver(){
         return observer;
     }
@@ -133,6 +147,10 @@ public class AuthorizedClient {
 
     public String getAuth(){
         return authToken;
+    }
+
+    public String getUsername(){
+        return username;
     }
 
     public int getGameID(){

@@ -64,30 +64,31 @@ public class GameClient {
             teamColor = "white";
         }
         ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        StringBuilder sb = new StringBuilder();
+        String letters = (teamColor.equals("white") ? ("   a  b  c  d  e  f  g  h\n") : ("   h  g  f  e  d  c  b  a\n"));
+        sb.append(letters);
+
         List<Integer> rowDecider = new ArrayList<>();
         if (teamColor.equals("white")) {
             rowDecider.add(7);
-            rowDecider.add(0);
-            rowDecider.add(0);
-            rowDecider.add(8);
             rowDecider.add(-1);
-
-        } else {
-            rowDecider.add(0);
-            rowDecider.add(7);
+            rowDecider.add(-1);
             rowDecider.add(0);
             rowDecider.add(8);
             rowDecider.add(1);
+        } else {
+            rowDecider.add(0);
+            rowDecider.add(8);
+            rowDecider.add(1);
+            rowDecider.add(7);
+            rowDecider.add(-1);
+            rowDecider.add(-1);
+
         }
-
-        board.resetBoard();
-        StringBuilder sb = new StringBuilder();
-        int direction = rowDecider.get(4);
-        sb.append("   a  b  c  d  e  f  g  h\n");
-
-        for (int row = rowDecider.get(0); row != rowDecider.get(1) + direction; row += direction) {
+        for (int row = rowDecider.get(0); row != rowDecider.get(1); row += rowDecider.get(3)) {
             sb.append(row + 1).append(" ");
-            for (int col = rowDecider.get(2); col < rowDecider.get(3); col++) {
+            for (int col = rowDecider.get(4); col != rowDecider.get(5); col += rowDecider.get(6)) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row + 1, col + 1));
                 String bg = ((row + col) % 2 == 0)
                         ? EscapeSequences.SET_BG_COLOR_WHITE
@@ -103,7 +104,7 @@ public class GameClient {
             sb.append("\n");
         }
 
-        sb.append("   a  b  c  d  e  f  g  h\n");
+        sb.append(letters);
 
         return sb.toString();
     }

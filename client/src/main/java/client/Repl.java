@@ -1,10 +1,6 @@
 package client;
 
 import client.websocket.NotificationHandler;
-import client.websocket.WebSocketFacade;
-
-import model.AuthData;
-import ui.EscapeSequences;
 import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
@@ -58,10 +54,19 @@ public class Repl implements NotificationHandler {
                 String line = scanner.nextLine();
                 try {
                     result = authorizedClient.eval(line, username, authToken, teamColor);
+
                     inGame = authorizedClient.getInGame();
                     observer = authorizedClient.getObserver();
                     teamColor = authorizedClient.getTeamColor();
-                    authToken = authorizedClient.getAuth();
+
+                    String authToken = authorizedClient.getAuth();
+                    this.authToken = authToken;
+
+                    preGameClient.setAuthToken(authToken);
+
+                    this.username = authorizedClient.getUsername();
+                    preGameClient.setUsername(this.username);
+
                     System.out.println(result);
 
 
@@ -74,8 +79,13 @@ public class Repl implements NotificationHandler {
                 String line = scanner.nextLine();
                 try {
                     result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, gameID);
-                    this.inGame = inGameClient.getInGame();
-                    this.observer = inGameClient.getObserver();
+
+                    boolean gameStatus = inGameClient.getInGame();
+                    this.inGame = gameStatus;
+                    this.observer = gameStatus;
+                    this.authToken = authorizedClient.getAuth();
+                    authorizedClient.setInGame(gameStatus);
+
                     System.out.println(result);
 
                 } catch (Exception e) {

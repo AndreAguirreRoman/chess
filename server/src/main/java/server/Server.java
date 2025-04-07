@@ -115,7 +115,6 @@ public class Server {
             GetGameResponse games = gameService.getGames(authToken);
             res.status(200);
             var response = new Gson().toJson(games);
-            System.out.println("RESPONSE " + new Gson().toJson(games.games()));
             return response;
         } catch (DataAccessException e) {
             res.status(e.getStatusCode());
@@ -148,18 +147,14 @@ public class Server {
             String authToken = req.headers("authorization");
 
             String requestBody = req.body();
-            System.out.println("RAW BODY: " + requestBody);
 
             UpdateGameRequest gameInfo = new Gson().fromJson(requestBody, UpdateGameRequest.class);
-            System.out.println("GAME INFO: " + gameInfo);
             UpdateGameRequest gameInfoWithAuth = new UpdateGameRequest(
                     gameInfo.gameID(), gameInfo.playerColor(), authToken
             );
 
-            System.out.println("REQUEST WITH AUTH: " + gameInfoWithAuth);
 
             UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoWithAuth);
-            System.out.println("GAME RESPONSE: " + updateGameResponse);
 
             res.status(200);
 

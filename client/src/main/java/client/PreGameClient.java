@@ -41,10 +41,14 @@ public class PreGameClient {
 
     public String login(String... params) throws DataException {
         if (params.length == 2) {
-            LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
-            LoginResult loginResult = server.loginUser(loginRequest);
-            username = loginResult.username();
-            authToken = loginResult.authToken();
+            try {
+                LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
+                LoginResult loginResult = server.loginUser(loginRequest);
+                username = loginResult.username();
+                authToken = loginResult.authToken();
+            } catch (Exception e) {
+                return ("Error logging in, check your password");
+            }
 
         }
         return (username != null) ? String.format("You signed in as %s.", username) :
@@ -53,14 +57,18 @@ public class PreGameClient {
 
     public String register(String... params) throws DataException {
         if (params.length == 3) {
-            RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
-            RegisterResult registerResult = server.addUser(registerRequest);
-            username = registerResult.username();
-            authToken = registerResult.authToken();
-            System.out.println(registerResult);
+            try {
+                RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
+
+                RegisterResult registerResult = server.addUser(registerRequest);
+                username = registerResult.username();
+                authToken = registerResult.authToken();
+            } catch (Exception e) {
+                return ("Error registering. Expected <username> <password> <email>");
+            }
         }
         return (username != null) ? String.format("You registered as %s.", username) :
-                String.format("TRY AGAIN: Expected <username> <password> <email>");
+                String.format("TRY AGAIN, registration failed.");
 
     }
 
@@ -70,6 +78,14 @@ public class PreGameClient {
 
     public String getUsername(){
         return username;
+    }
+
+    public void setAuthToken(String authToken){
+        this.authToken = authToken;
+    }
+
+    public void setUsername(String username){
+        this.username = username;
     }
 
     public String help(){

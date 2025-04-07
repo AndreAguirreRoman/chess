@@ -1,4 +1,4 @@
-package java.client;
+package client;
 
 import exception.DataException;
 import model.GameData;
