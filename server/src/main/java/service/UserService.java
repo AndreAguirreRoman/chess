@@ -1,6 +1,7 @@
 package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import exception.DataException;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
@@ -51,6 +52,15 @@ public class UserService {
         }
         return user;
 
+    }
+
+    public UserData getUserByAuth(String authToken) throws DataAccessException {
+        AuthData userAuth = dataAccess.getUserByAuth(authToken);
+        UserData userData = dataAccess.getUser(userAuth.userName());
+        if (userData == null){
+            throw new DataAccessException(500, "Error getting user with authToken");
+        }
+        return userData;
     }
     public LogoutResponse logout(LogoutRequest request) throws DataAccessException{
         AuthData userAuth = dataAccess.getAuth(request.authToken());

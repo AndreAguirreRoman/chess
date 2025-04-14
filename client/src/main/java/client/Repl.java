@@ -27,7 +27,8 @@ public class Repl implements NotificationHandler {
 
     public void run(){
         System.out.println("WELCOME TO CS240 CHESS");
-        System.out.println("SIGN-IN TO START");
+        System.out.println("SIGN-IN TO START \n");
+
         System.out.println(preGameClient.help());
 
         Scanner scanner = new Scanner(System.in);

@@ -55,8 +55,17 @@ public class GameClient {
             case "leave" -> exitGame();
             case "resign" -> resign();
             case "legalmoves" -> legalMoves();
+            case "makemove" -> makeMove(params);
             default -> help();
         };
+    }
+
+    public String makeMove(String... params) throws DataException {
+        if (params.length == 2) {
+            return "GOOD";
+        } else {
+            return "Invalid format, expected: makemove < startposition> <endposition>";
+        }
     }
 
     public String drawBoard(String teamColor, boolean observer) throws DataException {
@@ -86,9 +95,9 @@ public class GameClient {
             rowDecider.add(-1);
 
         }
-        for (int row = rowDecider.get(0); row != rowDecider.get(1); row += rowDecider.get(3)) {
+        for (int row = rowDecider.get(0); row != rowDecider.get(1); row += rowDecider.get(2)) {
             sb.append(row + 1).append(" ");
-            for (int col = rowDecider.get(4); col != rowDecider.get(5); col += rowDecider.get(6)) {
+            for (int col = rowDecider.get(3); col != rowDecider.get(4); col += rowDecider.get(5)) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row + 1, col + 1));
                 String bg = ((row + col) % 2 == 0)
                         ? EscapeSequences.SET_BG_COLOR_WHITE
@@ -147,16 +156,15 @@ public class GameClient {
         this.inGame = false;
         this.observer = false;
         ws = new WebSocketFacade(serverUrl,notificationHandler);
-        ws.exit(this.token, this.user, this.gameID);
-
-        return "OUT";
+        ws.exit(this.token, this.gameID);
+        return (this.user + ", you successfully left the game.");
 
     }
 
     public String resign() throws DataException {
         ws = new WebSocketFacade(serverUrl,notificationHandler);
-        ws.resignGame(this.token, this.user, this.gameID);
-        return "OUT";
+        ws.resignGame(this.token, this.gameID);
+        return "You resigned. Use 'exit' to leave the game";
 
     }
 

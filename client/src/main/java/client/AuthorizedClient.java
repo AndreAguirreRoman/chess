@@ -104,14 +104,13 @@ public class AuthorizedClient {
                 this.inGame = true;
                 this.teamColor = params[1];
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
-                ws.enterSession(this.authToken, this.username, this.gameID);
+                ws.enterSession(this.authToken, this.gameID);
             } catch (NumberFormatException e) {
                 return ("Error. Game ID must be an integer!");
             } catch (ArrayIndexOutOfBoundsException e) {
                 return ("Missing parameters!");
             } catch (Exception e) {
-
-                return ("Error joining: " + e.getMessage());
+                return ("Error joining: Invalid join");
             }
         } else {
             return ("Try again: EXPECTED <gameID> <teamColor>");
@@ -124,7 +123,7 @@ public class AuthorizedClient {
         this.observer = true;
         this.gameID = Integer.parseInt(params[0]);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
-        ws.enterSession(this.authToken, this.username, this.gameID);
+        ws.enterSession(this.authToken, this.gameID);
         return "Observing game!";
     }
 

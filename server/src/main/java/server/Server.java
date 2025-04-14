@@ -25,7 +25,7 @@ public class Server {
 
 
     public Server(){
-        MySqlDataAccess sql = null;
+        MySqlDataAccess sql;
         try {
             sql = new MySqlDataAccess();
         } catch (DataAccessException e) {

@@ -29,6 +29,11 @@ public class MemoryDataAccess implements DataAccess{
     }
 
 
+    public AuthData getUserByAuth(String authToken) {
+        return authTokens.get(authToken);
+    }
+
+
     public GameData createGame(GameData gameData) throws DataAccessException {
         int newGameId = nextGameId++;
         if (gamesList.containsKey(newGameId)) {
