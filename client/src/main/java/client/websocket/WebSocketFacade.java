@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import exception.DataException;
 import websocket.commands.MakeMoveCmd;
 import websocket.commands.UserGameCommand;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -33,8 +34,15 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage base = new Gson().fromJson(message, ServerMessage.class);
+
+                    // Then, if it's a NOTIFICATION, deserialize again properly:
+                    if (base.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                        Notification notif = new Gson().fromJson(message, Notification.class);
+                        notificationHandler.notify(notif); // pass full Notification object
+                    } else {
+                        notificationHandler.notify(base); // fallback
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {

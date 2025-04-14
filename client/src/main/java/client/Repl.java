@@ -1,6 +1,10 @@
 package client;
 
 import client.websocket.NotificationHandler;
+import com.google.gson.Gson;
+import websocket.messages.Error;
+import websocket.messages.LoadGame;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
@@ -98,7 +102,15 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.println(SET_BG_COLOR_BLUE + notification.getServerMessageType());
+        if (notification instanceof Notification notif) {
+            System.out.println("[NOTIFICATION] " + notif.getMessage());
+        }
+        if (notification instanceof LoadGame load){
+            System.out.println("[LOAD_GAME] " + load.getMessage());
+        }
+        if (notification instanceof Error err){
+            System.out.println("[ERROR] " + err.getMessage());
+        }
         printPrompt();
     }
 

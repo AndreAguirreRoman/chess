@@ -12,6 +12,7 @@ import service.GameService;
 import service.UserService;
 import websocket.commands.MakeMoveCmd;
 import websocket.commands.UserGameCommand;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -51,21 +52,22 @@ public class WebSocketHandler {
         }
     }
 
-    private void exit(String username, Session session) {
+    private void exit(String authToken, Session session) throws IOException, DataAccessException {
+        String username = userService.getUserByAuth(authToken).username();
+        connections.broadcast(username, new Notification(username + " , left the game!"));
+        connections.remove(username);
+
     }
 
     private void enter(String authToken, Session session) throws IOException, DataAccessException {
         String username = userService.getUserByAuth(authToken).username();
         connections.add(username, session);
-
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        notification.setMessage(String.format("%s, entered the game!", username));
-
-        connections.broadcast(username, notification);
+        connections.broadcast(username, new Notification(username + " , Joined the game!"));
     }
 
-    private void resign(String username, Session session) throws IOException {
-
+    private void resign(String authToken, Session session) throws IOException, DataAccessException {
+        String username = userService.getUserByAuth(authToken).username();
+        connections.broadcast(username, new Notification(username + " , Resigned the game :( "));
     }
 
     private void make_move(String username, ChessMove chessMove, Session session) throws IOException {

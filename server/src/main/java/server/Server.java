@@ -14,6 +14,7 @@ import spark.Response;
 import spark.Request;
 import com.google.gson.Gson;
 import spark.Spark;
+import websocket.WebSocketHandler;
 
 import java.util.Map;
 
@@ -22,12 +23,14 @@ public class Server {
     private final ClearService clearService;
     private final GameService gameService;
     private final UserService userService;
+    private final WebSocketHandler webSocketHandler;
 
 
     public Server(){
         MySqlDataAccess sql;
         try {
             sql = new MySqlDataAccess();
+            webSocketHandler = new WebSocketHandler();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -36,11 +39,14 @@ public class Server {
         this.gameService = new GameService(sql);
         this.userService = new UserService(sql);
 
+
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::clear);
         Spark.get("/game", this::getGames);
