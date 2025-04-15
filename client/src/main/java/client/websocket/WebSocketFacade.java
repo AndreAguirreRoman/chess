@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import exception.DataException;
 import websocket.commands.MakeMoveCmd;
 import websocket.commands.UserGameCommand;
+import websocket.messages.Error;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
@@ -34,14 +36,19 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage base = new Gson().fromJson(message, ServerMessage.class);
-
-                    // Then, if it's a NOTIFICATION, deserialize again properly:
-                    if (base.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    System.out.println("ONMESSAGE DEBUG: " + message);
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                         Notification notif = new Gson().fromJson(message, Notification.class);
-                        notificationHandler.notify(notif); // pass full Notification object
-                    } else {
-                        notificationHandler.notify(base); // fallback
+                        notificationHandler.notify(notif);
+                    }
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR){
+                        Error err = new Gson().fromJson(message, Error.class);
+                        notificationHandler.notify(err);
+                    }
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
+                        LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                        notificationHandler.notify(loadGame);
                     }
                 }
             });
@@ -67,7 +74,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void exit(String authToken, int gameID) throws DataException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {
@@ -77,9 +84,8 @@ public class WebSocketFacade extends Endpoint {
 
     public void resignGame(String authToken, int gameID) throws DataException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
         } catch (IOException ex) {
             throw new DataException(500, ex.getMessage());
         }

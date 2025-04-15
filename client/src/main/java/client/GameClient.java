@@ -31,6 +31,8 @@ public class GameClient {
     boolean observer = false;
     private WebSocketFacade ws;
 
+    private ChessGame chessGame;
+
     public GameClient(String serverUrl, NotificationHandler notificationHandler){
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
@@ -72,8 +74,8 @@ public class GameClient {
         if (observer == true) {
             teamColor = "white";
         }
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
+
+        ChessBoard board = chessGame.getBoard();
         StringBuilder sb = new StringBuilder();
         String letters = (teamColor.equals("white") ? ("   a  b  c  d  e  f  g  h\n") : ("   h  g  f  e  d  c  b  a\n"));
         sb.append(letters);
@@ -174,6 +176,14 @@ public class GameClient {
 
     public boolean getInGame(){
         return inGame;
+    }
+
+    public int getGameID() {
+        return gameID;
+    }
+
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
     }
 
     public boolean getObserver(){

@@ -70,6 +70,7 @@ public class Repl implements NotificationHandler {
                     preGameClient.setAuthToken(authToken);
 
                     this.username = authorizedClient.getUsername();
+                    this.gameID = authorizedClient.getGameID();
                     preGameClient.setUsername(this.username);
 
                     System.out.println(result);
@@ -83,7 +84,7 @@ public class Repl implements NotificationHandler {
                 printPrompt();
                 String line = scanner.nextLine();
                 try {
-                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, gameID);
+                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, this.gameID);
 
                     boolean gameStatus = inGameClient.getInGame();
                     this.inGame = gameStatus;
