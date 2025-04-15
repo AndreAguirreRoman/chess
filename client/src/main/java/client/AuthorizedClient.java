@@ -1,4 +1,5 @@
 package client;
+import chess.ChessBoard;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 
@@ -6,11 +7,14 @@ import client.websocket.WebSocketFacade;
 import exception.DataException;
 import model.GameData;
 import results.CreateGameRequest;
+import results.GetGameRequest;
 import results.UpdateGameRequest;
 import server.ServerFacade;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import static java.lang.Integer.parseInt;
 
 
 public class AuthorizedClient {
@@ -24,6 +28,7 @@ public class AuthorizedClient {
     boolean observer = false;
     String teamColor = null;
     private WebSocketFacade ws;
+    public ChessBoard chessBoard;
 
 
 
@@ -98,11 +103,12 @@ public class AuthorizedClient {
                     return "You chose an invalid team! Choose from: white and black";
                 }
                 UpdateGameRequest updateGameRequest = new UpdateGameRequest(
-                        Integer.parseInt(params[0]), params[1], authToken);
+                        parseInt(params[0]), params[1], authToken);
                 server.updateGame(updateGameRequest);
-                this.gameID = Integer.parseInt(params[0]);
+                this.gameID = parseInt(params[0]);
                 this.inGame = true;
                 this.teamColor = params[1];
+                this.chessBoard = getGame(parseInt(params[0]), authToken);
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
                 ws.enterSession(this.authToken, this.gameID);
             } catch (NumberFormatException e) {
@@ -118,13 +124,29 @@ public class AuthorizedClient {
         return String.format("Success! Joined as: " + (params[1]) +" color.");
     }
 
+    public ChessBoard getGame(int gameID, String authToken) throws DataException {
+        Collection<GameData> games = server.getGames(authToken).games();
+        GameData game = null;
+        for (GameData g : games){
+            if (g.gameID() == gameID){
+                game = g;
+                break;
+            }
+        }
+        return game.game();
+    }
+
     public String watchGame(String... params) throws DataException {
         this.inGame = true;
         this.observer = true;
-        this.gameID = Integer.parseInt(params[0]);
+        this.gameID = parseInt(params[0]);
         ws = new WebSocketFacade(serverUrl, notificationHandler);
         ws.enterSession(this.authToken, this.gameID);
         return "Observing game!";
+    }
+
+    public ChessBoard getChessBoard(){
+        return chessBoard;
     }
 
     public Boolean getInGame(){

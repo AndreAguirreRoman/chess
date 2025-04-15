@@ -31,7 +31,7 @@ public class GameClient {
     boolean observer = false;
     private WebSocketFacade ws;
 
-    private ChessGame chessGame;
+    private ChessBoard chessGame;
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler){
         this.serverUrl = serverUrl;
@@ -40,13 +40,14 @@ public class GameClient {
     }
 
     public String eval(String input, String username, String authToken, String teamColor,
-                       boolean observer, boolean inGame, int gameID) throws DataException {
+                       boolean observer, boolean inGame, int gameID, ChessBoard chessGame) throws DataException {
         user = username;
         token = authToken;
         this.gameID = gameID;
         this.teamColor = teamColor;
         this.inGame = inGame;
         this.observer = observer;
+        this.chessGame = chessGame;
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -71,11 +72,11 @@ public class GameClient {
     }
 
     public String drawBoard(String teamColor, boolean observer) throws DataException {
-        if (observer == true) {
+        if (observer) {
             teamColor = "white";
         }
 
-        ChessBoard board = chessGame.getBoard();
+        ChessBoard board = chessGame;
         StringBuilder sb = new StringBuilder();
         String letters = (teamColor.equals("white") ? ("   a  b  c  d  e  f  g  h\n") : ("   h  g  f  e  d  c  b  a\n"));
         sb.append(letters);

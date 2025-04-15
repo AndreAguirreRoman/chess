@@ -27,8 +27,7 @@ public class ConnectionManager {
 
     }
 
-    public void remove(String visitorName, Session session , int gameID) {
-        var connection = new Connection(visitorName, session);
+    public void remove(String visitorName, int gameID) {
         ArrayList<Connection> connectionList = connections.get(gameID);
         if (connectionList == null) {
             return;
@@ -47,7 +46,6 @@ public class ConnectionManager {
         }
         for (var c : connectionList) {
             if (c.session.isOpen()) {
-                c.send(new Gson().toJson(notification));
                 if (!c.username.equals(excludeVisitorName)) {
                     c.send(new Gson().toJson(notification));
                 }

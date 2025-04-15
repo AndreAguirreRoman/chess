@@ -56,7 +56,7 @@ public class WebSocketHandler {
     private void exit(UserGameCommand action, Session session) throws IOException, DataAccessException {
         String username = userService.getUserByAuth(action.getAuthToken()).username();
         connections.broadcast(username, new Notification(username + " , left the game!"), action.getGameID());
-        connections.remove(username, session, action.getGameID());
+        connections.remove(username, action.getGameID());
 
     }
 
@@ -81,7 +81,12 @@ public class WebSocketHandler {
         connections.broadcast(username, new Notification(username + " , Resigned the game :( "), action.getGameID());
     }
 
-    private void make_move(MakeMoveCmd username, ChessMove chessMove, Session session) throws IOException {
+    private void make_move(MakeMoveCmd moveCmd, ChessMove chessMove, Session session) throws IOException, DataAccessException {
+        String auth = moveCmd.getAuthToken();
+        int gameID = moveCmd.getGameID();
+        String username = userService.getUserByAuth(auth).username();
+        GameData game = gameService.getGame(gameID);
+
 
     }
 

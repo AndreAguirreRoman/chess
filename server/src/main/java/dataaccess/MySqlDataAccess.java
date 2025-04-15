@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
@@ -214,7 +215,7 @@ public class MySqlDataAccess implements DataAccess {
         String black = rs.getString("blackplayer");
         String gamename = rs.getString("gamename");
         String game = rs.getString("game");
-        var json = new Gson().fromJson(game, ChessGame.class);
+        var json = new Gson().fromJson(game, ChessBoard.class);
         return new GameData(id,white, black, gamename, json);
     }
 
@@ -269,7 +270,7 @@ public class MySqlDataAccess implements DataAccess {
               `whiteplayer` varchar(100),
               `blackplayer` varchar(100),
               `gamename` varchar(100) NOT NULL,
-              `game` varchar(512),
+              `game` longtext,
               PRIMARY KEY (`id`),
               INDEX(id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

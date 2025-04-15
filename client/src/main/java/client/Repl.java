@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessBoard;
 import client.websocket.NotificationHandler;
 import com.google.gson.Gson;
 import websocket.messages.Error;
@@ -21,6 +22,7 @@ public class Repl implements NotificationHandler {
     boolean observer = false;
     String teamColor = null;
     int gameID = 0;
+    private ChessBoard chessGame;
 
 
     public Repl (String serverUrl){
@@ -60,9 +62,10 @@ public class Repl implements NotificationHandler {
                 try {
                     result = authorizedClient.eval(line, username, authToken, teamColor);
 
-                    inGame = authorizedClient.getInGame();
-                    observer = authorizedClient.getObserver();
-                    teamColor = authorizedClient.getTeamColor();
+                    this.inGame = authorizedClient.getInGame();
+                    this.observer = authorizedClient.getObserver();
+                    this.teamColor = authorizedClient.getTeamColor();
+                    this.chessGame = authorizedClient.getChessBoard();
 
                     String authToken = authorizedClient.getAuth();
                     this.authToken = authToken;
@@ -84,7 +87,7 @@ public class Repl implements NotificationHandler {
                 printPrompt();
                 String line = scanner.nextLine();
                 try {
-                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, this.gameID);
+                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, this.gameID, this.chessGame);
 
                     boolean gameStatus = inGameClient.getInGame();
                     this.inGame = gameStatus;

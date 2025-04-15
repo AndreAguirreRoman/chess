@@ -1,5 +1,7 @@
 package service;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.GameData;
@@ -16,7 +18,8 @@ public class GameService {
     
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
         getAuthorization(request.authToken());
-        GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), null));
+        ChessBoard game = new ChessGame().getBoard();
+        GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), game));
 
         return new CreateGameResponse(newGame.gameID());
     }
