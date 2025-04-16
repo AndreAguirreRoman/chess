@@ -14,6 +14,7 @@ import service.GameService;
 import service.UserService;
 import websocket.commands.MakeMoveCmd;
 import websocket.commands.UserGameCommand;
+import websocket.messages.Error;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
@@ -88,28 +89,24 @@ public class WebSocketHandler {
         int gameID = moveCmd.getGameID();
         String username = userService.getUserByAuth(auth).username();
 
-        ChessGame game = gameService.getGame(gameID).game();
+        GameData gameData = gameService.getGame(gameID);
+        ChessGame.TeamColor currentTurn = gameData.game().getTeamTurn();
+
+        if ((currentTurn == ChessGame.TeamColor.WHITE && !username.equals(gameData.whiteUsername())) ||
+                (currentTurn == ChessGame.TeamColor.BLACK && !username.equals(gameData.blackUsername()))){
+           Error err = new Error("NOT YOUR TURN BUDDY");
+           connections.broadcast("", err, gameID);
+           return;
+        }
 
         try {
-            game.makeMove(chessMove);
-            String gameJson = new Gson().toJson(game);
+            gameData.game().makeMove(chessMove);
+            String gameJson = new Gson().toJson(gameData.game());
             gameService.updateGame(new UpdateGameRequest(gameID, null, auth, gameJson));
-            connections.broadcast("", new LoadGame((game)), moveCmd.getGameID());
+            connections.broadcast("", new LoadGame((gameData.game())), moveCmd.getGameID());
         } catch (InvalidMoveException e) {
-            Error error = new Error("Invalid move" + e.getMessage());
-            System.out.println(new Error("Invalid move!" + error.getMessage()));
-
-
+            connections.broadcast(auth, new Error("Error: bad move"), gameID);
         }
-
-        String updatedBoard = new Gson().toJson(game.getBoard());
-
-        try {
-            gameService.updateGame(new UpdateGameRequest(gameID, null, auth, updatedBoard));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-        connections.broadcast(username, new LoadGame(game), gameID);
     }
 
 
