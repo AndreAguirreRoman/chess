@@ -87,24 +87,29 @@ public class WebSocketHandler {
         String auth = moveCmd.getAuthToken();
         int gameID = moveCmd.getGameID();
         String username = userService.getUserByAuth(auth).username();
-        GameData game = gameService.getGame(gameID);
-        ChessGame chessGame = new ChessGame();
-        chessGame.setBoard(game.game());
+
+        ChessGame game = gameService.getGame(gameID).game();
 
         try {
-            chessGame.makeMove(chessMove);
+            game.makeMove(chessMove);
+            String gameJson = new Gson().toJson(game);
+            gameService.updateGame(new UpdateGameRequest(gameID, null, auth, gameJson));
+            connections.broadcast("", new LoadGame((game)), moveCmd.getGameID());
         } catch (InvalidMoveException e) {
-            throw new RuntimeException(e);
+            Error error = new Error("Invalid move" + e.getMessage());
+            System.out.println(new Error("Invalid move!" + error.getMessage()));
+
+
         }
 
-        String updatedBoard = new Gson().toJson(chessGame.getBoard());
+        String updatedBoard = new Gson().toJson(game.getBoard());
 
         try {
-            gameService.updateGame(new UpdateGameRequest(gameID, moveCmd.getTeamColor(), auth, updatedBoard));
+            gameService.updateGame(new UpdateGameRequest(gameID, null, auth, updatedBoard));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        connections.broadcast(username, new LoadGame(updatedBoard), gameID); sta
+        connections.broadcast(username, new LoadGame(game), gameID);
     }
 
 

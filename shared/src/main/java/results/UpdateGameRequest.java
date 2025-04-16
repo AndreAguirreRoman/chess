@@ -1,4 +1,6 @@
 package results;
 
-public record UpdateGameRequest(Integer gameID, String playerColor, String authToken, String board) {
+import chess.ChessGame;
+
+public record UpdateGameRequest(Integer gameID, String playerColor, String authToken, String chessGame) {
 }

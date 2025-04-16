@@ -196,7 +196,7 @@ public class MySqlDataAccess implements DataAccess {
     public void updateBoard(int gameID, String board) throws DataAccessException{
 
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE games SET board = ? WHERE id = ?";
+            var statement = "UPDATE games SET game = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(2, gameID);
                 ps.setString(1, board);
@@ -229,7 +229,7 @@ public class MySqlDataAccess implements DataAccess {
         String black = rs.getString("blackplayer");
         String gamename = rs.getString("gamename");
         String game = rs.getString("game");
-        var json = new Gson().fromJson(game, ChessBoard.class);
+        var json = new Gson().fromJson(game, ChessGame.class);
         return new GameData(id,white, black, gamename, json);
     }
 

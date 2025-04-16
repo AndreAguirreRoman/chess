@@ -90,9 +90,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String authToken, int gameID, ChessMove move, String teamColor) throws DataException {
+    public void makeMove(String authToken, int gameID, ChessMove move) throws DataException {
         try {
-            var action = new MakeMoveCmd(authToken, gameID, move, teamColor);
+            var action = new MakeMoveCmd(authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException e) {
             throw new DataException(500, e.getMessage());

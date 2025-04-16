@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
@@ -151,15 +152,13 @@ public class Server {
     private Object updateGame(Request req, Response res){
         try {
             String authToken = req.headers("authorization");
-
             String requestBody = req.body();
-
             UpdateGameRequest gameInfo = new Gson().fromJson(requestBody, UpdateGameRequest.class);
+
+
             UpdateGameRequest gameInfoWithAuth = new UpdateGameRequest(
-                    gameInfo.gameID(), gameInfo.playerColor(), authToken
+                    gameInfo.gameID(), gameInfo.playerColor(), authToken, gameInfo.chessGame()
             );
-
-
             UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoWithAuth);
 
             res.status(200);

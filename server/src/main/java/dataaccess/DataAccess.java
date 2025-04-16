@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -18,5 +19,5 @@ public interface DataAccess {
     UserData getUser(String username);
     AuthData getUserByAuth(String authToken);
     void clear() throws  DataAccessException;
-    void updateBoard(int gameID, String board) throws DataAccessException;
+    void updateBoard(int gameID, String chessGame) throws DataAccessException;
 }

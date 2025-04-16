@@ -20,6 +20,7 @@ public class GameClient {
     private final ServerFacade server;
     private final String serverUrl;
     private final NotificationHandler notificationHandler;
+
     String user = null;
     String token = null;
     String teamColor = "observer";
@@ -38,17 +39,14 @@ public class GameClient {
     }
 
     public String eval(String input, String username, String authToken, String teamColor,
-                       boolean observer, boolean inGame, int gameID, ChessBoard chessBoard) throws DataException {
+                       boolean observer, boolean inGame, int gameID) throws DataException {
         user = username;
         token = authToken;
         this.gameID = gameID;
         this.teamColor = teamColor;
         this.inGame = inGame;
         this.observer = observer;
-        this.chessBoard = chessBoard;
-
-        this.chessGame = new ChessGame();
-        this.chessGame.setBoard(this.chessBoard);
+        this.chessGame = chessGame;
 
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -56,7 +54,7 @@ public class GameClient {
         return switch (cmd){
             case "help" -> help();
             case "quit" -> "quit";
-            case "board" -> drawBoard(teamColor, observer, null);
+            case "board" -> drawBoard(teamColor, observer, null, this.chessGame);
             case "leave" -> exitGame();
             case "resign" -> resign();
             case "legalmoves" -> highlight(params);
@@ -68,6 +66,7 @@ public class GameClient {
     public String makeMove(String... params) throws DataException {
         if (params.length == 2) {
             try {
+
                 this.ws = new WebSocketFacade(serverUrl,notificationHandler);
                 String posStart = params[0];
                 String posEnd = params[1];
@@ -77,14 +76,27 @@ public class GameClient {
                 ChessPosition posStartTransformed = transformationPosition(letterToNum, posStart);
                 ChessPosition posEndTransformed = transformationPosition(letterToNum, posEnd);
                 ChessMove chessMove = new ChessMove(posStartTransformed, posEndTransformed, null);
-                ws.makeMove(this.token, this.gameID, chessMove, this.teamColor);
-                return "Move made! From: " + posStart + " to: " + posEnd;
+
+                ChessPiece piece = this.chessGame.getBoard().getPiece(chessMove.getStartPosition());
+                System.out.println("Piece at start: " + piece);
+                System.out.println("Trying move: " + posStart + " to " + posEnd);
+                System.out.println("Your team color: " + this.teamColor);
+                System.out.println("Turn: " + this.chessGame.getTeamTurn());
+                System.out.println("Trying to move piece at " + chessMove.getStartPosition());
+
+                try {
+                    ws.makeMove(this.token, this.gameID, chessMove);
+                } catch (DataException e) {
+                    return "Move made! From: " + posStart + " to: " + posEnd;
+                }
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
             return "Invalid format, expected: makemove <startposition> <endposition>";
         }
+        return "";
     }
 
     private static final Map<Character, Integer> letterToNum = Map.of(
@@ -113,11 +125,9 @@ public class GameClient {
         return positions;
     }
 
-    public String drawBoard(String teamColor, boolean observer, Collection<ChessPosition> allowedMoves) throws DataException {
-        if (observer) {
-            teamColor = "white";
-        }
-        ChessBoard board = chessBoard;
+    public String drawBoard(String teamColor, boolean observer, Collection<ChessPosition> allowedMoves, ChessGame chessGame) throws DataException {
+
+
         StringBuilder sb = new StringBuilder();
         String letters = (teamColor.equals("white") ? ("   a  b  c  d  e  f  g  h\n") : ("   h  g  f  e  d  c  b  a\n"));
         sb.append(letters);
@@ -142,7 +152,7 @@ public class GameClient {
         for (int row = rowDecider.get(0); row != rowDecider.get(1); row += rowDecider.get(2)) {
             sb.append(row + 1).append(" ");
             for (int col = rowDecider.get(3); col != rowDecider.get(4); col += rowDecider.get(5)) {
-                ChessPiece piece = board.getPiece(new ChessPosition(row + 1, col + 1));
+                ChessPiece piece = chessGame.getBoard().getPiece(new ChessPosition(row + 1, col + 1));
                 boolean highlight = (allowedMoves != null && allowedMoves.contains(new ChessPosition(row + 1, col + 1)));
                 String bg = highlight ? EscapeSequences.SET_BG_COLOR_YELLOW : ((row + col) % 2 == 0)
                         ? EscapeSequences.SET_BG_COLOR_WHITE
@@ -225,19 +235,19 @@ public class GameClient {
         for (ChessMove move : allowedMoves){
             allowedMove.add(move.getEndPosition());
         }
-        return drawBoard(teamColor, observer, allowedMove);
+        return drawBoard(teamColor, observer, allowedMove, this.chessGame);
+    }
+
+    public void setChessGame(ChessGame chessGame) {
+        this.chessGame = chessGame;
     }
 
     public boolean getInGame(){
         return inGame;
     }
 
-    public int getGameID() {
-        return gameID;
-    }
-
-    public void setGameID(int gameID) {
-        this.gameID = gameID;
+    public ChessGame getChessGame(){
+        return this.chessGame;
     }
 
     public boolean getObserver(){

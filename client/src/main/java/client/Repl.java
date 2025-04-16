@@ -1,8 +1,10 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import client.websocket.NotificationHandler;
 import com.google.gson.Gson;
+import exception.DataException;
 import websocket.messages.Error;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
@@ -22,7 +24,7 @@ public class Repl implements NotificationHandler {
     boolean observer = false;
     String teamColor = null;
     int gameID = 0;
-    private ChessBoard chessGame;
+    private ChessGame chessGame;
 
 
     public Repl (String serverUrl){
@@ -61,7 +63,6 @@ public class Repl implements NotificationHandler {
                 String line = scanner.nextLine();
                 try {
                     result = authorizedClient.eval(line, username, authToken, teamColor);
-
                     this.inGame = authorizedClient.getInGame();
                     this.observer = authorizedClient.getObserver();
                     this.teamColor = authorizedClient.getTeamColor();
@@ -87,7 +88,7 @@ public class Repl implements NotificationHandler {
                 printPrompt();
                 String line = scanner.nextLine();
                 try {
-                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, this.gameID, this.chessGame);
+                    result = inGameClient.eval(line, username, authToken, teamColor, observer, inGame, this.gameID);
 
                     boolean gameStatus = inGameClient.getInGame();
                     this.inGame = gameStatus;
@@ -109,8 +110,16 @@ public class Repl implements NotificationHandler {
         if (notification instanceof Notification notif) {
             System.out.println("[NOTIFICATION] " + notif.getMessage());
         }
-        if (notification instanceof LoadGame load){
+        if (notification instanceof LoadGame load) {
             System.out.println("[LOAD_GAME] " + load.getMessage());
+            inGameClient.setChessGame(load.getMessage());
+            this.chessGame = load.getMessage();
+            try {
+                System.out.println(this.teamColor);
+                System.out.println(inGameClient.drawBoard(this.teamColor, this.observer, null, load.getMessage()));
+            } catch (DataException e) {
+                throw new RuntimeException(e);
+            }
         }
         if (notification instanceof Error err){
             System.out.println("[ERROR] " + err.getMessage());
