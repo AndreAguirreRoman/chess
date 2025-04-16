@@ -193,6 +193,20 @@ public class MySqlDataAccess implements DataAccess {
         }
     }
 
+    public void updateBoard(int gameID, String board) throws DataAccessException{
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET board = ? WHERE id = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(2, gameID);
+                ps.setString(1, board);
+                ps.executeUpdate();
+            }
+        } catch (Exception e){
+            throw new DataAccessException(500, e.getMessage());
+        }
+    }
+
     private String playerColorDecider(String playerColor){
         System.out.println("Player color in decider " + playerColor);
         if (playerColor.toUpperCase().equals("WHITE")) {

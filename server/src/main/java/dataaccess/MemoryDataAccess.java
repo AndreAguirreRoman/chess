@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessBoard;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -89,6 +91,18 @@ public class MemoryDataAccess implements DataAccess{
 
     }
 
+    public void updateBoard(int gameId, String board) throws DataAccessException{
+        GameData game = getGame(gameId);
+
+        if (game == null){
+            throw new DataAccessException(400, "Error Game not found ");
+        }
+        ChessBoard updatedBoard = new Gson().fromJson(board, ChessBoard.class);
+        GameData newGameData = new GameData(game.gameID(), game.whiteUsername(),
+                game.blackUsername(), game.gameName(), updatedBoard);
+        gamesList.put(gameId, newGameData);
+
+    }
 
     public AuthData createAuth(UserData userData, String authToken) throws DataAccessException{
         AuthData authData = new AuthData(authToken, userData.username());

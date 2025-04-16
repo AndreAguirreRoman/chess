@@ -1,6 +1,6 @@
 package websocket;
 
-import chess.ChessMove;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MySqlDataAccess;
@@ -9,10 +9,12 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
+import results.UpdateGameRequest;
 import service.GameService;
 import service.UserService;
 import websocket.commands.MakeMoveCmd;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
@@ -86,8 +88,23 @@ public class WebSocketHandler {
         int gameID = moveCmd.getGameID();
         String username = userService.getUserByAuth(auth).username();
         GameData game = gameService.getGame(gameID);
+        ChessGame chessGame = new ChessGame();
+        chessGame.setBoard(game.game());
 
+        try {
+            chessGame.makeMove(chessMove);
+        } catch (InvalidMoveException e) {
+            throw new RuntimeException(e);
+        }
 
+        String updatedBoard = new Gson().toJson(chessGame.getBoard());
+
+        try {
+            gameService.updateGame(new UpdateGameRequest(gameID, moveCmd.getTeamColor(), auth, updatedBoard));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        connections.broadcast(username, new LoadGame(updatedBoard), gameID); sta
     }
 
 

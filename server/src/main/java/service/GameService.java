@@ -56,8 +56,11 @@ public class GameService {
             }
         }
         String username = dataAccess.getAuth(request.authToken()).userName();
-        System.out.println("Username to add in gameservice" + username);
         dataAccess.updateGame(request.gameID(), username, request.playerColor());
+
+        if (request.board() != null) {
+            dataAccess.updateBoard(request.gameID(), request.board());
+        }
         return new UpdateGameResponse(200);
     }
 

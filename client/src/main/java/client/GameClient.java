@@ -1,9 +1,6 @@
 package client;
-import chess.ChessBoard;
+import chess.*;
 
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 
@@ -14,9 +11,9 @@ import exception.DataException;
 import server.ServerFacade;
 import ui.EscapeSequences;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
+import static java.lang.Integer.parseInt;
 
 
 public class GameClient {
@@ -31,7 +28,8 @@ public class GameClient {
     boolean observer = false;
     private WebSocketFacade ws;
 
-    private ChessBoard chessGame;
+    private ChessBoard chessBoard;
+    private ChessGame chessGame;
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler){
         this.serverUrl = serverUrl;
@@ -40,24 +38,28 @@ public class GameClient {
     }
 
     public String eval(String input, String username, String authToken, String teamColor,
-                       boolean observer, boolean inGame, int gameID, ChessBoard chessGame) throws DataException {
+                       boolean observer, boolean inGame, int gameID, ChessBoard chessBoard) throws DataException {
         user = username;
         token = authToken;
         this.gameID = gameID;
         this.teamColor = teamColor;
         this.inGame = inGame;
         this.observer = observer;
-        this.chessGame = chessGame;
+        this.chessBoard = chessBoard;
+
+        this.chessGame = new ChessGame();
+        this.chessGame.setBoard(this.chessBoard);
+
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd){
             case "help" -> help();
             case "quit" -> "quit";
-            case "board" -> drawBoard(teamColor, observer);
+            case "board" -> drawBoard(teamColor, observer, null);
             case "leave" -> exitGame();
             case "resign" -> resign();
-            case "legalmoves" -> legalMoves();
+            case "legalmoves" -> highlight(params);
             case "makemove" -> makeMove(params);
             default -> help();
         };
@@ -65,18 +67,57 @@ public class GameClient {
 
     public String makeMove(String... params) throws DataException {
         if (params.length == 2) {
-            return "GOOD";
+            try {
+                this.ws = new WebSocketFacade(serverUrl,notificationHandler);
+                String posStart = params[0];
+                String posEnd = params[1];
+                if (!validPositions().contains(posStart) || !validPositions().contains(posEnd)){
+                    return ("Check your positions! One is not inside the board.");
+                }
+                ChessPosition posStartTransformed = transformationPosition(letterToNum, posStart);
+                ChessPosition posEndTransformed = transformationPosition(letterToNum, posEnd);
+                ChessMove chessMove = new ChessMove(posStartTransformed, posEndTransformed, null);
+                ws.makeMove(this.token, this.gameID, chessMove, this.teamColor);
+                return "Move made! From: " + posStart + " to: " + posEnd;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else {
-            return "Invalid format, expected: makemove < startposition> <endposition>";
+            return "Invalid format, expected: makemove <startposition> <endposition>";
         }
     }
 
-    public String drawBoard(String teamColor, boolean observer) throws DataException {
+    private static final Map<Character, Integer> letterToNum = Map.of(
+            'a', 1, 'b',2, 'c', 3, 'd', 4, 'e', 5,
+            'f', 6, 'g', 7, 'h', 8
+    );
+
+    ChessPosition transformationPosition(Map<Character, Integer> list, String pos) {
+        char colToConvert = pos.toLowerCase().strip().charAt(0);
+        int colInt = list.get(colToConvert);
+
+        int row = parseInt(String.valueOf(pos.toLowerCase().strip().charAt(1)));
+
+        ChessPosition position = new ChessPosition(row ,colInt);
+        return position;
+    }
+
+    private static List<String> validPositions(){
+        List<String> positions = new ArrayList<>();
+        List<String> letters = List.of("a","b","c","d","e","f","g", "h");
+        for (String l : letters) {
+            for (int i = 1; i <= 8; i++){
+                positions.add(l+i);
+            }
+        }
+        return positions;
+    }
+
+    public String drawBoard(String teamColor, boolean observer, Collection<ChessPosition> allowedMoves) throws DataException {
         if (observer) {
             teamColor = "white";
         }
-
-        ChessBoard board = chessGame;
+        ChessBoard board = chessBoard;
         StringBuilder sb = new StringBuilder();
         String letters = (teamColor.equals("white") ? ("   a  b  c  d  e  f  g  h\n") : ("   h  g  f  e  d  c  b  a\n"));
         sb.append(letters);
@@ -102,7 +143,8 @@ public class GameClient {
             sb.append(row + 1).append(" ");
             for (int col = rowDecider.get(3); col != rowDecider.get(4); col += rowDecider.get(5)) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row + 1, col + 1));
-                String bg = ((row + col) % 2 == 0)
+                boolean highlight = (allowedMoves != null && allowedMoves.contains(new ChessPosition(row + 1, col + 1)));
+                String bg = highlight ? EscapeSequences.SET_BG_COLOR_YELLOW : ((row + col) % 2 == 0)
                         ? EscapeSequences.SET_BG_COLOR_WHITE
                         : EscapeSequences.SET_BG_COLOR_DARK_GREY;
 
@@ -171,8 +213,19 @@ public class GameClient {
 
     }
 
-    public String legalMoves() throws DataException {
-        return "LEGAL MOVES";
+    public String highlight(String... params) throws DataException {
+        if (params.length > 1 || !validPositions().contains(params[0]) ){
+            return "Highlight Error! Use: legalmoves <chessposition>";
+        }
+
+        ChessPosition piece = transformationPosition(letterToNum, params[0]);
+        Collection<ChessMove> allowedMoves = chessGame.validMoves(piece);
+        Collection<ChessPosition> allowedMove = new ArrayList<>();
+
+        for (ChessMove move : allowedMoves){
+            allowedMove.add(move.getEndPosition());
+        }
+        return drawBoard(teamColor, observer, allowedMove);
     }
 
     public boolean getInGame(){
@@ -200,6 +253,7 @@ public class GameClient {
                 - leave -> Leave game.
                 - resign -> resign game.
                 - legalmoves -> Highlights allowed moves for a piece.
+                - makemove -> <startpos> <endpos>
                 """;
     }
 
