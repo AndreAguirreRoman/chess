@@ -229,6 +229,7 @@ public class MySqlDataAccess implements DataAccess {
         String black = rs.getString("blackplayer");
         String gamename = rs.getString("gamename");
         String game = rs.getString("game");
+        System.out.println(game);
         var json = new Gson().fromJson(game, ChessGame.class);
         return new GameData(id,white, black, gamename, json);
     }

@@ -6,6 +6,7 @@ import dataaccess.DataAccessException;
 import dataaccess.MySqlDataAccess;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
@@ -56,6 +57,12 @@ public class WebSocketHandler {
         }
     }
 
+    @OnWebSocketError
+    public void onError(Session session, Throwable error) throws IOException {
+        error.printStackTrace();
+        session.getRemote().sendString("Error: " + error.getMessage());
+    }
+
     private void exit(UserGameCommand action, Session session) throws IOException, DataAccessException {
         String username = userService.getUserByAuth(action.getAuthToken()).username();
         connections.broadcast(username, new Notification(username + " , left the game!"), action.getGameID());
@@ -76,6 +83,7 @@ public class WebSocketHandler {
             team = " as an observer";
         }
         connections.add(username, session, action.getGameID());
+        connections.sendOneUser(username, new LoadGame(game.game()), action.getGameID());
         connections.broadcast(username, new Notification(username + " , Joined the game," + team), action.getGameID());
     }
 

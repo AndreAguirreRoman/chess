@@ -39,7 +39,7 @@ public class GameClient {
     }
 
     public String eval(String input, String username, String authToken, String teamColor,
-                       boolean observer, boolean inGame, int gameID) throws DataException {
+                       boolean observer, boolean inGame, int gameID, ChessGame chessGame) throws DataException {
         user = username;
         token = authToken;
         this.gameID = gameID;
@@ -83,9 +83,10 @@ public class GameClient {
                 System.out.println("Your team color: " + this.teamColor);
                 System.out.println("Turn: " + this.chessGame.getTeamTurn());
                 System.out.println("Trying to move piece at " + chessMove.getStartPosition());
+                System.out.println("Trying to move piece to " + chessMove.getEndPosition());
 
                 try {
-                    ws.makeMove(this.token, this.gameID, chessMove);
+                    ws.makeMove(this.token, this.gameID, chessMove, this.teamColor);
                 } catch (DataException e) {
                     return "Move made! From: " + posStart + " to: " + posEnd;
                 }

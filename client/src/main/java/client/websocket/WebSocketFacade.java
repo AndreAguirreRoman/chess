@@ -36,6 +36,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
+                    System.out.println("Received message: " + message);
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                         Notification notif = new Gson().fromJson(message, Notification.class);
@@ -60,6 +61,8 @@ public class WebSocketFacade extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
+
+
 
     public void enterSession(String authToken, int gameID) throws DataException {
 
@@ -90,9 +93,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String authToken, int gameID, ChessMove move) throws DataException {
+    public void makeMove(String authToken, int gameID, ChessMove move, String teamColor) throws DataException {
         try {
-            var action = new MakeMoveCmd(authToken, gameID, move);
+            var action = new MakeMoveCmd(authToken, gameID, move, teamColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException e) {
             throw new DataException(500, e.getMessage());

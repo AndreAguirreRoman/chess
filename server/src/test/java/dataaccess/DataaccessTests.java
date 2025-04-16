@@ -236,7 +236,7 @@ import java.util.Collection;
             gameService.createGame(gameRequest);
             GameData updatedGameExpected = new GameData(1, "SOFIA", null, "test game", null);
 
-            UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "white", userAuth.authToken());
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "white", userAuth.authToken(), null);
             gameService.updateGame(updateGameRequest);
 
             GameData updatedGameResponse = gameService.getGame(1);
@@ -254,7 +254,7 @@ import java.util.Collection;
 
             gameService.createGame(gameRequest);
             gameService.createGame(gameRequest);
-            UpdateGameRequest updateGameRequest = new UpdateGameRequest(2, "WHISHIS", userAuth.authToken());
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(2, "WHISHIS", userAuth.authToken(), null);
 
             DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.updateGame(updateGameRequest), "SOMETHING WENT WRONG");
             assertEquals("Error bad request",e.getMessage());
@@ -303,7 +303,7 @@ import java.util.Collection;
             gameService.createGame(gameRequest);
             GameData updatedGameExpected = new GameData(1, null, "SOFIA", "test game", null);
 
-            UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "black", userAuth.authToken());
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "black", userAuth.authToken(), null);
             gameService.updateGame(updateGameRequest);
 
             GameData updatedGameResponse = gameService.getGame(1);
@@ -320,7 +320,7 @@ import java.util.Collection;
             CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
 
             gameService.createGame(gameRequest);
-            UpdateGameRequest updateGameRequest = new UpdateGameRequest(null, "white", userAuth.authToken());
+            UpdateGameRequest updateGameRequest = new UpdateGameRequest(null, "white", userAuth.authToken(), null);
 
             DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.updateGame(updateGameRequest), "SOMETHING WENT WRONG");
             assertEquals("Error bad request",e.getMessage());

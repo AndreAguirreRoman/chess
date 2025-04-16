@@ -37,8 +37,7 @@ public class GameService {
 
         getAuthorization(request.authToken());
         if (request.chessGame() != null && request.playerColor() == null){
-            var game = new Gson().toJson(request.chessGame());
-            dataAccess.updateBoard(request.gameID(), game);
+            dataAccess.updateBoard(request.gameID(), request.chessGame());
         } else if (request.playerColor() == null || request.gameID() == null){
             throw new DataAccessException(400, "Error bad in Update request");
         } else {
@@ -65,6 +64,7 @@ public class GameService {
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
+        System.out.println("Fetching game for ID: " + gameID);
         GameData game = dataAccess.getGame(gameID);
         if (game == null){
             throw new DataAccessException(500, "Error bad request in get games");

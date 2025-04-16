@@ -35,6 +35,25 @@ public class ConnectionManager {
         connectionList.remove(visitorName);
     }
 
+    public void sendOneUser(String username, ServerMessage notification, int gameID) throws IOException {
+        var connectionList = connections.get(gameID);
+        if (connectionList == null) {
+            System.out.println("No connections found for gameID: " + gameID);
+            return;
+        }
+        for (var c : connectionList) {
+            if (c.session.isOpen()) {
+                if (c.username.equals(username)) {
+                    c.send(new Gson().toJson(notification));
+                    break;
+                }
+            }
+        }
+
+
+    }
+
+
     public void broadcast(String excludeVisitorName, ServerMessage notification, int gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
         var connectionList = connections.get(gameID);
