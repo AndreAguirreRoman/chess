@@ -100,7 +100,7 @@ public class ServerFacadeTests {
         facade.createGame(createGameRequest);
         Collection<GameData> games = facade.getGames(authData.authToken()).games();
         UpdateGameRequest updateGameRequest = new UpdateGameRequest(1,
-                "white", authData.authToken(), null);
+                "white", authData.authToken(), null, "false", false);
 
         assertDoesNotThrow(() -> facade.updateGame(updateGameRequest));
 
