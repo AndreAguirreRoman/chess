@@ -25,6 +25,7 @@ public class GameClient {
     String user = null;
     String token = null;
     String teamColor = "observer";
+    boolean inCheckMate = false;
     int gameID = 0;
     boolean inGame = true;
     boolean observer = false;
@@ -97,6 +98,7 @@ public class GameClient {
 
                 try {
                     ws.makeMove(this.token, this.gameID, chessMove, this.teamColor);
+
                 } catch (DataException e) {
                     return "Move made! From: " + posStart + " to: " + posEnd;
                 }
@@ -138,7 +140,9 @@ public class GameClient {
 
     public String drawBoard(String teamColor, boolean observer, Collection<ChessPosition> allowedMoves, ChessGame chessGame) throws DataException {
 
-
+        if (observer) {
+            teamColor = "white";
+        }
         StringBuilder sb = new StringBuilder();
         String letters = (teamColor.equals("white") ? ("   a  b  c  d  e  f  g  h\n") : ("   h  g  f  e  d  c  b  a\n"));
         sb.append(letters);
@@ -219,15 +223,14 @@ public class GameClient {
 
 
     public String exitGame() throws DataException {
-        this.inGame = false;
-        this.observer = false;
 
-        try {
-            server.updateGame(new UpdateGameRequest(this.gameID, this.teamColor, null, null, "false", true));
-        } catch (DataException e) {
-            return "Error leaving the game";
+
+
+        if (!observer){
+            server.updateGame(new UpdateGameRequest(this.gameID, this.teamColor, this.token, null, "false", true));
         }
-
+        this.observer = false;
+        this.inGame = false;
         ws = new WebSocketFacade(serverUrl,notificationHandler);
         ws.exit(this.token, this.gameID);
         return (this.user + ", you successfully left the game.");
@@ -235,12 +238,10 @@ public class GameClient {
     }
 
     public String resign() throws DataException {
-        if (observer) {
-            return "You are an observer only!";
-        }
+
         chessGame.setGameOver(true);
         this.gameOver = true;
-        server.updateGame(new UpdateGameRequest(this.gameID, this.teamColor, null, null, "true", true));
+        server.updateGame(new UpdateGameRequest(this.gameID, null, this.token, null, "true", true));
         ws = new WebSocketFacade(serverUrl,notificationHandler);
         ws.resignGame(this.token, this.gameID);
         return "You resigned. Use 'exit' to leave the game";

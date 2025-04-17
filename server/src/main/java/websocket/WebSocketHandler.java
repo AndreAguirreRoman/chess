@@ -180,7 +180,7 @@ public class WebSocketHandler {
             var gameJson = new Gson().toJson(gameData.game());
             gameService.updateGame(new UpdateGameRequest(gameID, null, auth, gameJson,"false", false));
             connections.broadcast("", new LoadGame((gameData.game())), moveCmd.getGameID());
-            connections.broadcast(username, new Notification((username + "made a move to:" +
+            connections.broadcast(username, new Notification((username + ", made a move to:" +
                     (moveCmd.getMove().getEndPosition()))), moveCmd.getGameID());
 
         } catch (InvalidMoveException e) {
