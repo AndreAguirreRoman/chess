@@ -83,8 +83,8 @@ public class GameClient {
                 if (!validPositions().contains(posStart) || !validPositions().contains(posEnd)){
                     return ("Check your positions! One is not inside the board.");
                 }
-                ChessPosition posStartTransformed = transformationPosition(letterToNum, posStart);
-                ChessPosition posEndTransformed = transformationPosition(letterToNum, posEnd);
+                ChessPosition posStartTransformed = transformationPosition(LETTER_TO_NUM, posStart);
+                ChessPosition posEndTransformed = transformationPosition(LETTER_TO_NUM, posEnd);
                 ChessMove chessMove = new ChessMove(posStartTransformed, posEndTransformed, null);
 
                 ChessPiece piece = this.chessGame.getBoard().getPiece(chessMove.getStartPosition());
@@ -110,7 +110,7 @@ public class GameClient {
         return "";
     }
 
-    private static final Map<Character, Integer> letterToNum = Map.of(
+    private static final Map<Character, Integer> LETTER_TO_NUM = Map.of(
             'a', 1, 'b',2, 'c', 3, 'd', 4, 'e', 5,
             'f', 6, 'g', 7, 'h', 8
     );
@@ -252,7 +252,7 @@ public class GameClient {
             return "Highlight Error! Use: legalmoves <chessposition>";
         }
 
-        ChessPosition piece = transformationPosition(letterToNum, params[0]);
+        ChessPosition piece = transformationPosition(LETTER_TO_NUM, params[0]);
         Collection<ChessMove> allowedMoves = chessGame.validMoves(piece);
         Collection<ChessPosition> allowedMove = new ArrayList<>();
 

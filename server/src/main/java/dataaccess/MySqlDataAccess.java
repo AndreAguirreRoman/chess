@@ -107,23 +107,6 @@ public class MySqlDataAccess implements DataAccess {
         return authData;
     }
 
-    public AuthData getUserByAuth(String authToken){
-        AuthData authData = null;
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM auths WHERE authtoken=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authToken);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        authData = new AuthData(authToken, rs.getString("username"));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return authData;
-    }
 
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM auths where authtoken =?";

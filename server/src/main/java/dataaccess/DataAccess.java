@@ -17,7 +17,6 @@ public interface DataAccess {
     void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException;
     UserData createUser(UserData user) throws DataAccessException;
     UserData getUser(String username);
-    AuthData getUserByAuth(String authToken);
     void clear() throws  DataAccessException;
     void updateBoard(int gameID, String chessGame, String gameOver) throws DataAccessException;
 }

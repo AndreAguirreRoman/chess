@@ -57,7 +57,7 @@ public class WebSocketHandler {
                 case RESIGN -> resign(action, session);
                 case MAKE_MOVE -> {
                     MakeMoveCmd moveAction = new Gson().fromJson(message, MakeMoveCmd.class);
-                    make_move(moveAction, moveAction.getMove(), session);
+                    makeMove(moveAction, moveAction.getMove(), session);
                 }
             }
         } catch (Exception e) {
@@ -139,7 +139,7 @@ public class WebSocketHandler {
         connections.broadcast("", new Notification(username + " , Resigned the game :( "), action.getGameID());
     }
 
-    private void make_move(MakeMoveCmd moveCmd, ChessMove chessMove, Session session) throws IOException, DataAccessException {
+    private void makeMove(MakeMoveCmd moveCmd, ChessMove chessMove, Session session) throws IOException, DataAccessException {
         if (chessMove == null) {
             System.out.println("ERROR IN MOVE!");
             return;
@@ -180,7 +180,8 @@ public class WebSocketHandler {
             var gameJson = new Gson().toJson(gameData.game());
             gameService.updateGame(new UpdateGameRequest(gameID, null, auth, gameJson,"false", false));
             connections.broadcast("", new LoadGame((gameData.game())), moveCmd.getGameID());
-            connections.broadcast(username, new Notification((username + "made a move to:" + (moveCmd.getMove().getEndPosition()))), moveCmd.getGameID());
+            connections.broadcast(username, new Notification((username + "made a move to:" +
+                    (moveCmd.getMove().getEndPosition()))), moveCmd.getGameID());
 
         } catch (InvalidMoveException e) {
             connections.sendOneUser(username, new Error("Error: bad move"), gameID);

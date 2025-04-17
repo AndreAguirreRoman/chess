@@ -58,7 +58,7 @@ public class UserService {
         if (authToken.length() < 10){
             throw new DataAccessException(500, "Error getting user with authToken");
         }
-        AuthData userAuth = dataAccess.getUserByAuth(authToken);
+        AuthData userAuth = dataAccess.getAuth(authToken);
         UserData userData = dataAccess.getUser(userAuth.userName());
         if (userData == null){
             throw new DataAccessException(500, "Error getting user with authToken");
