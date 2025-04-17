@@ -104,7 +104,7 @@ public class AuthorizedClient {
                     return "You chose an invalid team! Choose from: white and black";
                 }
                 UpdateGameRequest updateGameRequest = new UpdateGameRequest(
-                        parseInt(params[0]), params[1], authToken, null);
+                        parseInt(params[0]), params[1], authToken, null, "false", false);
                 server.updateGame(updateGameRequest);
                 this.gameID = parseInt(params[0]);
                 this.inGame = true;
