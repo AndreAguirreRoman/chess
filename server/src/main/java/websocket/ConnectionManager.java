@@ -32,7 +32,8 @@ public class ConnectionManager {
         if (connectionList == null) {
             return;
         }
-        connectionList.remove(visitorName);
+        connectionList.removeIf(connection -> connection.username.equals(visitorName));
+
     }
 
     public void sendOneUser(String username, ServerMessage notification, int gameID) throws IOException {
@@ -52,6 +53,8 @@ public class ConnectionManager {
 
 
     }
+
+
 
 
     public void broadcast(String excludeVisitorName, ServerMessage notification, int gameID) throws IOException {

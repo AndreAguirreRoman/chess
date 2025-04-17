@@ -16,11 +16,13 @@ public class ChessGame {
     private ChessBoard board;
     private ChessPosition whiteKing;
     private ChessPosition blackKing;
+    boolean gameOver;
 
     public ChessGame() {
         this.board = new ChessBoard();
         this.board.resetBoard();
         this.teamColor = TeamColor.WHITE;
+        this.gameOver = false;
 
         this.whiteKing = new ChessPosition(1,5);
         this.blackKing = new ChessPosition(8,5);
@@ -315,6 +317,14 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    public boolean getGameOVer(){
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     @Override

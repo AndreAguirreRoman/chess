@@ -43,7 +43,7 @@ public class MemoryDataAccess implements DataAccess{
             throw new DataAccessException(400,"bad request");
         }
         gameData = new GameData(newGameId, gameData.whiteUsername(),
-                gameData.blackUsername(), gameData.gameName(), gameData.game());
+                gameData.blackUsername(), gameData.gameName(), gameData.game(), "false");
 
         gamesList.put(newGameId, gameData);
         System.out.println("List of games: " + getGames());
@@ -77,13 +77,13 @@ public class MemoryDataAccess implements DataAccess{
                     throw new DataAccessException(403, "Error White slot taken ");
                 }
                 newGameData = new GameData(game.gameID(), userName,
-                        game.blackUsername(),game.gameName(), game.game());
+                        game.blackUsername(),game.gameName(), game.game(),"false");
             } else if (playerColor.equalsIgnoreCase("BLACK")){
                 if (game.blackUsername() != null) {
                     throw new DataAccessException(403, "Error Black slot taken");
                 }
                  newGameData = new GameData(game.gameID(), game.whiteUsername(),
-                        userName,game.gameName(), game.game());
+                        userName,game.gameName(), game.game(), "false");
             }
             System.out.println("List of games after update: " + getGames());
 
@@ -92,7 +92,7 @@ public class MemoryDataAccess implements DataAccess{
 
     }
 
-    public void updateBoard(int gameId, String board) throws DataAccessException{
+    public void updateBoard(int gameId, String board, String gameOver) throws DataAccessException{
         GameData game = getGame(gameId);
 
         if (game == null){
@@ -100,7 +100,7 @@ public class MemoryDataAccess implements DataAccess{
         }
         ChessGame gameOb = new Gson().fromJson(board, ChessGame.class);
         GameData newGameData = new GameData(game.gameID(), game.whiteUsername(),
-                game.blackUsername(), game.gameName(), gameOb);
+                game.blackUsername(), game.gameName(), gameOb, "false");
         gamesList.put(gameId, newGameData);
 
     }

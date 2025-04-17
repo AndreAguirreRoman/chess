@@ -19,5 +19,5 @@ public interface DataAccess {
     UserData getUser(String username);
     AuthData getUserByAuth(String authToken);
     void clear() throws  DataAccessException;
-    void updateBoard(int gameID, String chessGame) throws DataAccessException;
+    void updateBoard(int gameID, String chessGame, String gameOver) throws DataAccessException;
 }

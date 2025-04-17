@@ -8,6 +8,7 @@ import client.websocket.WebSocketFacade;
 
 import exception.DataException;
 
+import results.UpdateGameRequest;
 import server.ServerFacade;
 import ui.EscapeSequences;
 
@@ -27,9 +28,8 @@ public class GameClient {
     int gameID = 0;
     boolean inGame = true;
     boolean observer = false;
+    boolean gameOver = false;
     private WebSocketFacade ws;
-
-    private ChessBoard chessBoard;
     private ChessGame chessGame;
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler){
@@ -47,6 +47,7 @@ public class GameClient {
         this.inGame = inGame;
         this.observer = observer;
         this.chessGame = chessGame;
+        boolean gameOver = chessGame.getGameOVer();
 
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -65,6 +66,15 @@ public class GameClient {
 
     public String makeMove(String... params) throws DataException {
         if (params.length == 2) {
+            if (chessGame.getGameOVer()) {
+                return "Game is over. No more moves";
+            }
+            if (this.gameOver){
+                System.out.println("GAME OVER");
+            }
+            if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) || chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                chessGame.setGameOver(true);
+            }
             try {
 
                 this.ws = new WebSocketFacade(serverUrl,notificationHandler);
@@ -211,6 +221,13 @@ public class GameClient {
     public String exitGame() throws DataException {
         this.inGame = false;
         this.observer = false;
+
+        try {
+            server.updateGame(new UpdateGameRequest(this.gameID, this.teamColor, null, null, "false", true));
+        } catch (DataException e) {
+            return "Error leaving the game";
+        }
+
         ws = new WebSocketFacade(serverUrl,notificationHandler);
         ws.exit(this.token, this.gameID);
         return (this.user + ", you successfully left the game.");
@@ -218,6 +235,12 @@ public class GameClient {
     }
 
     public String resign() throws DataException {
+        if (observer) {
+            return "You are an observer only!";
+        }
+        chessGame.setGameOver(true);
+        this.gameOver = true;
+        server.updateGame(new UpdateGameRequest(this.gameID, this.teamColor, null, null, "true", true));
         ws = new WebSocketFacade(serverUrl,notificationHandler);
         ws.resignGame(this.token, this.gameID);
         return "You resigned. Use 'exit' to leave the game";

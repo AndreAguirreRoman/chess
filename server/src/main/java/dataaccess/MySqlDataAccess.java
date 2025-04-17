@@ -135,7 +135,7 @@ public class MySqlDataAccess implements DataAccess {
             var statement = "INSERT INTO games (whiteplayer, blackplayer, gamename, game) VALUES (? ,?, ?, ?)";
             var gamejson = new Gson().toJson(gameData.game());
             int gameID = executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gamejson);
-            return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+            return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game(), "false");
         } catch (Exception e) {
             throw new DataAccessException(500, e.getMessage());
         }
@@ -179,13 +179,16 @@ public class MySqlDataAccess implements DataAccess {
 
     public void updateGame(int gameId, String authToken, String playerColor) throws DataAccessException {
         String playerColorUpdate = playerColorDecider(playerColor);
-
         try (var conn = DatabaseManager.getConnection()) {
-            System.out.println("Username to join: " + authToken);
             var statement = "UPDATE games SET " + playerColorUpdate + " = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(2, gameId);
-                ps.setString(1, authToken);
+                if (authToken == null || authToken.equals("null")){
+                    ps.setNull(1, NULL);
+                } else {
+                    ps.setString(1, authToken);
+                }
+
                 ps.executeUpdate();
             }
         } catch (Exception e){
@@ -193,12 +196,13 @@ public class MySqlDataAccess implements DataAccess {
         }
     }
 
-    public void updateBoard(int gameID, String board) throws DataAccessException{
+    public void updateBoard(int gameID, String board, String gameOver) throws DataAccessException{
 
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "UPDATE games SET game = ? WHERE id = ?";
+            var statement = "UPDATE games SET game = ? , gameOver = ? WHERE id = ?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setInt(2, gameID);
+                ps.setInt(3, gameID);
+                ps.setString(2, gameOver);
                 ps.setString(1, board);
                 ps.executeUpdate();
             }
@@ -229,9 +233,10 @@ public class MySqlDataAccess implements DataAccess {
         String black = rs.getString("blackplayer");
         String gamename = rs.getString("gamename");
         String game = rs.getString("game");
+        String gameOver = rs.getString("gameOver");
         System.out.println(game);
         var json = new Gson().fromJson(game, ChessGame.class);
-        return new GameData(id,white, black, gamename, json);
+        return new GameData(id,white, black, gamename, json, gameOver);
     }
 
 
@@ -286,6 +291,7 @@ public class MySqlDataAccess implements DataAccess {
               `blackplayer` varchar(100),
               `gamename` varchar(100) NOT NULL,
               `game` longtext,
+              `gameOver` varchar(100),
               PRIMARY KEY (`id`),
               INDEX(id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

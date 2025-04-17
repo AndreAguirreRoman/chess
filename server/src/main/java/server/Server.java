@@ -157,8 +157,8 @@ public class Server {
 
 
             UpdateGameRequest gameInfoWithAuth = new UpdateGameRequest(
-                    gameInfo.gameID(), gameInfo.playerColor(), authToken, gameInfo.chessGame()
-            );
+                    gameInfo.gameID(), gameInfo.playerColor(), authToken, gameInfo.chessGame(),
+            "false", false);
             UpdateGameResponse updateGameResponse = gameService.updateGame(gameInfoWithAuth);
 
             res.status(200);

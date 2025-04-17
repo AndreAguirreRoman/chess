@@ -107,6 +107,7 @@ public class Repl implements NotificationHandler {
     public void notify(ServerMessage notification) {
         if (notification instanceof Notification notif) {
             System.out.println("[NOTIFICATION] " + notif.getMessage());
+
         }
         if (notification instanceof LoadGame load) {
             System.out.println("[LOAD_GAME] " + load.getGame());
@@ -120,7 +121,7 @@ public class Repl implements NotificationHandler {
             }
         }
         if (notification instanceof Error err){
-            System.out.println("[ERROR] " + err.getMessage());
+            System.out.println("[ERROR] " + err.getErrorMessage());
         }
         printPrompt();
     }

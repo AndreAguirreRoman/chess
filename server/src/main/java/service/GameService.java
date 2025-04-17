@@ -20,7 +20,7 @@ public class GameService {
     public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
         getAuthorization(request.authToken());
         ChessGame game = new ChessGame();
-        GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), game));
+        GameData newGame = dataAccess.createGame(new GameData(0, null, null, request.gameName(), game, "false"));
 
         return new CreateGameResponse(newGame.gameID());
     }
@@ -36,28 +36,46 @@ public class GameService {
     public UpdateGameResponse updateGame(UpdateGameRequest request) throws DataAccessException{
 
         getAuthorization(request.authToken());
+        boolean leave = request.leaving();
         if (request.chessGame() != null && request.playerColor() == null){
-            dataAccess.updateBoard(request.gameID(), request.chessGame());
+            dataAccess.updateBoard(request.gameID(), request.chessGame(), request.gameOver());
         } else if (request.playerColor() == null || request.gameID() == null){
             throw new DataAccessException(400, "Error bad in Update request");
         } else {
             String teamColor = request.playerColor();
             GameData game = dataAccess.getGame(request.gameID());
 
+
             if (!teamColor.equalsIgnoreCase("WHITE") && !teamColor.equalsIgnoreCase("BLACK")) {
                 throw new DataAccessException(400, "Error bad request in games");
             }
-            if (teamColor.equalsIgnoreCase("WHITE")){
-                if (game.whiteUsername() != null){
-                    throw new DataAccessException(403, "Error already taken");
+            String username = dataAccess.getAuth(request.authToken()).userName();
+            if (leave) {
+                if (teamColor.equalsIgnoreCase("WHITE")) {
+                    if (username.equals(game.whiteUsername())) {
+                        dataAccess.updateGame(request.gameID(), null, "WHITE");
+                    } else {
+                        throw new DataAccessException(403, "You are not the current white player");
+                    }
+                } else {
+                    if (username.equals(game.blackUsername())) {
+                        dataAccess.updateGame(request.gameID(), null, "BLACK");
+                    } else {
+                        throw new DataAccessException(403, "You are not the current black player");
+                    }
                 }
             } else {
-                if (game.blackUsername() != null){
-                    throw new DataAccessException(403, "Error already taken");
+                if (teamColor.equalsIgnoreCase("WHITE")) {
+                    if (game.whiteUsername() != null) {
+                        throw new DataAccessException(403, "Error already taken");
+                    }
+                } else {
+                    if (game.blackUsername() != null) {
+                        throw new DataAccessException(403, "Error already taken");
+                    }
                 }
+                dataAccess.updateGame(request.gameID(), username, request.playerColor());
             }
-            String username = dataAccess.getAuth(request.authToken()).userName();
-            dataAccess.updateGame(request.gameID(), username, request.playerColor());
         }
 
         return new UpdateGameResponse(200);

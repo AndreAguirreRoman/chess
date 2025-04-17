@@ -152,9 +152,9 @@ public class ServiceTest {
         gameService.createGame(gameRequest3);
 
         Collection<GameData> expectedGames = new ArrayList<>();
-        expectedGames.add(new GameData(1, null, null, "test game", null));
-        expectedGames.add(new GameData(2, null, null, "test game2", null));
-        expectedGames.add(new GameData(3, null, null, "test game3", null));
+        expectedGames.add(new GameData(1, null, null, "test game", null, "false"));
+        expectedGames.add(new GameData(2, null, null, "test game2", null, "false"));
+        expectedGames.add(new GameData(3, null, null, "test game3", null, "false"));
 
         GetGameResponse getGameResponse = gameService.getGames(userAuth.authToken());
         assertEquals(expectedGames.size(), getGameResponse.games().size());
@@ -183,9 +183,9 @@ public class ServiceTest {
         CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
 
         gameService.createGame(gameRequest);
-        GameData updatedGameExpected = new GameData(1, "ANDRE", null, "test game", null);
+        GameData updatedGameExpected = new GameData(1, "ANDRE", null, "test game", null, "false");
 
-        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "white", userAuth.authToken(), null);
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, "white", userAuth.authToken(), null, "false", false);
         gameService.updateGame(updateGameRequest);
 
         GameData updatedGameResponse = gameService.getGame(1);
@@ -202,7 +202,7 @@ public class ServiceTest {
         CreateGameRequest gameRequest = new CreateGameRequest("test game", userAuth.authToken());
 
         gameService.createGame(gameRequest);
-        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, null, userAuth.authToken(), null);
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(1, null, userAuth.authToken(), null, "false", false);
 
         DataAccessException e = assertThrows(DataAccessException.class, () -> gameService.updateGame(updateGameRequest), "SOMETHING WENT WRONG");
         assertEquals("Error bad request",e.getMessage());
